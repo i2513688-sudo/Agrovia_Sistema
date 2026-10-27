@@ -62,6 +62,19 @@ class VidaAgroviaTests(unittest.TestCase):
         self.assertIn('alt="Charla informativa de Agrovia"', content)
         self.assertIn('href="https://www.facebook.com/share/p/1FVxmshvxB/"', content)
         self.assertIn("Ver charla de Agrovia en Facebook", content)
+        self.assertEqual(content.count("Ver charla de Agrovia en Facebook"), 1)
+
+    @patch("app.query", return_value=[])
+    def test_agrovia_talk_is_shown_when_no_publications_are_registered(self, query):
+        flask_app.config["TESTING"] = True
+        response = flask_app.test_client().get("/vida-agrovia")
+
+        self.assertEqual(response.status_code, 200)
+        content = response.get_data(as_text=True)
+        self.assertIn("Charla informativa de Agrovia", content)
+        self.assertIn('src="/static/img/charla_agrovia.jpg"', content)
+        self.assertIn("Ver charla de Agrovia en Facebook", content)
+        self.assertNotIn("Aún no hay publicaciones disponibles.", content)
 
 
 if __name__ == "__main__":

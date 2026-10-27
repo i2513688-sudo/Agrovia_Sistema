@@ -9578,7 +9578,7 @@ def vida_agrovia():
         ORDER BY c.fecha, c.hora
         """
     )
-    publicaciones = query(
+    publicaciones = list(query(
         """
         SELECT id_publicacion, tipo, titulo, contenido, fecha_publicacion
         FROM publicaciones
@@ -9587,7 +9587,21 @@ def vida_agrovia():
         ORDER BY fecha_publicacion DESC, id_publicacion DESC
         LIMIT 20
         """
+    ))
+    hay_publicacion_charla = any(
+        "charla" in texto and "agrovia" in texto
+        for texto in (
+            f"{publicacion['titulo']} {publicacion['contenido']}".lower()
+            for publicacion in publicaciones
+        )
     )
+    if not hay_publicacion_charla:
+        publicaciones.append({
+            "tipo": "ACTIVIDAD_AGROVIA",
+            "titulo": "Charla informativa de Agrovia",
+            "contenido": "Mira la charla informativa de Agrovia en Facebook.",
+            "fecha_publicacion": None,
+        })
 
     return render_template(
         'vida_agrovia.html',
