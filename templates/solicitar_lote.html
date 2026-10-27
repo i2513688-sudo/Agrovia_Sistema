@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<main class="container">
+
+    <div class="form">
+
+        <h1>Solicitar publicación de lote</h1>
+
+        <p class="muted">
+            Registra la información del cultivo que deseas
+            incorporar al marketplace.
+        </p>
+
+        <form method="POST" enctype="multipart/form-data">
+
+            <label>Producto</label>
+
+            <select name="id_producto" required>
+
+                <option value="">
+                    Seleccionar producto
+                </option>
+
+                {% for p in productos %}
+
+                <option value="{{ p.id_producto }}">
+                    {{ p.nombre }}
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+            <label>Predio</label>
+
+            <select name="id_predio" required>
+
+                <option value="">
+                    Seleccionar predio
+                </option>
+
+                {% for p in predios %}
+
+                <option value="{{ p.id_predio }}">
+                    {{ p.nombre_predio }}
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+            <label>Área cultivada</label>
+
+            <input
+                type="number"
+                step="0.01"
+                name="area_cultivada"
+                required
+            >
+
+            <label>Fecha de siembra</label>
+
+            <input
+                type="date"
+                name="fecha_siembra"
+            >
+
+            <label>
+                Inicio estimado de cosecha
+            </label>
+
+            <input
+                type="date"
+                name="fecha_cosecha_estimada_inicio"
+            >
+
+            <label>
+                Fin estimado de cosecha
+            </label>
+
+            <input
+                type="date"
+                name="fecha_cosecha_estimada_fin"
+            >
+
+            <label>Imagen del cultivo o predio</label>
+
+            <input
+                type="file"
+                name="imagen"
+                accept="image/jpeg,image/png,image/webp"
+            >
+
+            <label>Descripción</label>
+
+            <textarea
+                name="descripcion"
+                rows="5"
+                placeholder="Información adicional del cultivo..."
+            ></textarea>
+
+            <br>
+
+            <button
+                class="btn"
+                type="submit"
+            >
+                Enviar solicitud
+            </button>
+
+        </form>
+
+    </div>
+
+</main>
+
+{% endblock %}

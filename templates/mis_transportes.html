@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Mis transportes{% endblock %}
+
+{% block content %}
+<main class="container">
+    <h1>Mis transportes</h1>
+    <p class="muted">Actualiza cada etapa de la entrega. Al marcar el transporte en ruta, puedes compartir la ubicación GPS desde este dispositivo; el seguimiento se detiene al cerrar o salir de esta página.</p>
+
+    {% for item in transportes %}
+    <section class="card">
+        <h2>{{ item.codigo_transporte }} · {{ item.codigo_operacion }}</h2>
+        <p><strong>Estado:</strong> {{ item.estado }} · <strong>Vehículo:</strong> {{ item.placa }}</p>
+        <p><strong>Origen:</strong> {{ item.origen }}<br><strong>Destino:</strong> {{ item.destino }}</p>
+        {% if item.fecha_ubicacion %}
+        <p><small>Último reporte GPS: {{ item.fecha_ubicacion.strftime('%d/%m/%Y %H:%M:%S') }}</small></p>
+        {% endif %}
+
+        {% set siguiente_estado = {
+            'ASIGNADO': 'RECOJO_PROGRAMADO',
+            'RECOJO_PROGRAMADO': 'CARGA_REALIZADA',
+            'CARGA_REALIZADA': 'EN_RUTA',
+            'EN_RUTA': 'LLEGADA_DESTINO'
+        }.get(item.estado) %}
+        {% if siguiente_estado %}
+        <form method="post" action="{{ url_for('actualizar_estado_transporte', id_transporte=item.id_transporte) }}" class="inline-form">
+            <input type="hidden" name="estado" value="{{ siguiente_estado }}">
+            <button type="submit" class="btn">Marcar {{ siguiente_estado|replace('_', ' ')|lower }}</button>
+        </form>
+        {% endif %}
+
+        {% if item.estado == 'EN_RUTA' %}
+        <div class="stacked-fields">
+            <button type="button" class="btn gps-start"
+                    data-location-url="{{ url_for('reportar_ubicacion_transporte', id_transporte=item.id_transporte) }}">
+                Compartir ubicación GPS
+            </button>
+            <button type="button" class="btn gps-stop" hidden>Dejar de compartir</button>
+            <p class="gps-status" role="status">La ubicación solo se comparte con tu autorización del navegador durante el trayecto.</p>
+        </div>
+        {% endif %}
+    </section>
+    {% else %}
+    <section class="card">
+        <p>No tienes transportes activos asignados a tu cuenta.</p>
+    </section>
+    {% endfor %}
+</main>
+<script>
+    document.querySelectorAll(".gps-start").forEach((button) => {
+        const panel = button.closest(".card");
+        const stopButton = panel.querySelector(".gps-stop");
+        const status = panel.querySelector(".gps-status");
+        const token = panel.querySelector('input[name="csrf_token"]');
+        let watchId = null;
+        const stop = () => {
+            if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+            watchId = null;
+            button.hidden = false;
+            stopButton.hidden = true;
+        };
+        button.addEventListener("click", () => {
+            if (!navigator.geolocation) {
+                status.textContent = "Este navegador no permite compartir ubicación GPS.";
+                return;
+            }
+            if (!token) {
+                status.textContent = "No se pudo validar la sesión para compartir ubicación.";
+                return;
+            }
+            button.disabled = true;
+            status.textContent = "Esperando autorización y señal GPS…";
+            watchId = navigator.geolocation.watchPosition(async (position) => {
+                try {
+                    const response = await fetch(button.dataset.locationUrl, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-Token": token.value
+                        },
+                        body: JSON.stringify({
+                            latitud: position.coords.latitude,
+                            longitud: position.coords.longitude,
+                            precision_m: position.coords.accuracy
+                        })
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.error || "No se pudo guardar la ubicación.");
+                    status.textContent = `Ubicación actualizada a las ${new Date().toLocaleTimeString()}.`;
+                    button.hidden = true;
+                    button.disabled = false;
+                    stopButton.hidden = false;
+                } catch (error) {
+                    status.textContent = error.message;
+                }
+            }, (error) => {
+                status.textContent = `No se pudo obtener la ubicación GPS: ${error.message}`;
+                stop();
+            }, {
+                enableHighAccuracy: true,
+                maximumAge: 10000,
+                timeout: 20000
+            });
+        });
+        stopButton.addEventListener("click", stop);
+        window.addEventListener("pagehide", stop, { once: true });
+    });
+</script>
+{% endblock %}

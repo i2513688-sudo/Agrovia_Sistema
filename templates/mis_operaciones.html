@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}Mis operaciones{% endblock %}
+{% block content %}
+<main class="container">
+    <h1>Mis operaciones</h1>
+    <section class="card" aria-labelledby="seguimiento-mapa-titulo">
+        <h2 id="seguimiento-mapa-titulo">Seguimiento del pedido</h2>
+        <p>La ubicación mostrada en cada operación corresponde al último reporte GPS compartido por el transportista; se actualiza automáticamente cada 30 segundos. Si aún no hay reporte, el mapa no mostrará una posición en tiempo real.</p>
+    </section>
+    <section class="card">
+        <div class="table-container">
+            <table class="table">
+                <thead><tr><th>Operación</th><th>Producto / lote</th><th>Total</th><th>Estado</th><th>Seguimiento logístico</th><th>Pago y comprobante</th><th>Incidencias</th><th>Historial</th><th>Acciones</th></tr></thead>
+                <tbody>
+                    {% for item in operaciones %}
+                    <tr>
+                        <td>{{ item.codigo_operacion }}</td>
+                        <td>{{ item.producto }} · {{ item.codigo_lote }}</td>
+                        <td>S/ {{ '%.2f'|format(item.total_operacion or 0) }}</td>
+                        <td><span class="badge">{{ item.estado }}</span></td>
+                        <td>
+                            {% if item.id_transporte %}
+                            <strong>{{ item.codigo_transporte }}</strong> · {{ item.estado_transporte }}<br>
+                            {% if item.estado_transporte == 'LLEGADA_DESTINO' %}
+                            <span class="badge">Llegada verificada por administración</span><br>
+                            {% endif %}
+                            <small>{{ item.transportista or 'Transportista' }}{% if item.placa %} · {{ item.placa }}{% endif %}</small>
+                            {% if item.distancia_km %}<br><small>Ruta estimada: {{ '%.2f'|format(item.distancia_km) }} km{% if item.duracion_estimada_min %} · {{ item.duracion_estimada_min }} min{% endif %}</small>{% endif %}
+                            <div class="tracking-map"
+                                 data-location-url="{{ url_for('ubicacion_transporte', id_transporte=item.id_transporte) }}"
+                                 data-dest-lat="{{ item.latitud_destino if item.latitud_destino is not none else '' }}"
+                                 data-dest-lon="{{ item.longitud_destino if item.longitud_destino is not none else '' }}">
+                                <p class="tracking-status">Consultando ubicación GPS…</p>
+                                <div class="tracking-map-frame"></div>
+                                <a class="tracking-map-link" hidden target="_blank" rel="noopener noreferrer">Abrir ubicación</a>
+                                {% if item.direccion_entrega %}
+                                <p><strong>Destino:</strong> {{ item.direccion_entrega }}</p>
+                                {% endif %}
+                                {% if item.latitud_destino is not none and item.longitud_destino is not none %}
+                                <p>
+                                    <a class="tracking-destination-link" target="_blank" rel="noopener noreferrer"
+                                       href="https://www.google.com/maps/search/?api=1&amp;query={{ item.latitud_destino }},{{ item.longitud_destino }}">Ver destino en Google Maps</a>
+                                    · <a class="tracking-route-link" hidden target="_blank" rel="noopener noreferrer">Ver ruta desde la ubicación GPS</a>
+                                </p>
+                                {% endif %}
+                            </div>
+                            {% if item.fecha_ubicacion %}<small>Último reporte: {{ item.fecha_ubicacion.strftime('%d/%m/%Y %H:%M:%S') }}</small>{% endif %}
+                            {% else %}<span class="muted">Transporte aún no asignado</span>{% endif %}
+                        </td>
+                        <td>
+                            {% if item.id_pago %}
+                            {{ item.estado_pago }} · {{ item.metodo }}<br>
+                            {% if item.tipo_documento == 'DNI' %}Boleta{% elif item.tipo_documento == 'RUC' %}Factura{% endif %}
+                            {% if item.tipo_documento %} · {{ item.tipo_documento }} {{ item.numero_documento }}{% endif %}
+                            {% else %}Sin pago reportado{% endif %}
+                        </td>
+                        <td>
+                            {% for incidencia in item.incidencias %}
+                            <strong>{{ incidencia.codigo_incidencia }}</strong> · {{ incidencia.estado }}
+                            {% if incidencia.solucion %}<br><small>{{ incidencia.solucion }}</small>{% endif %}
+                            {% if not loop.last %}<hr>{% endif %}
+                            {% else %}
+                            Sin incidencias
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <details>
+                                <summary>Ver eventos ({{ item.historial|length }})</summary>
+                                <ol>
+                                    {% for evento in item.historial %}
+                                    <li>
+                                        <time>{{ evento.fecha.strftime('%d/%m/%Y %H:%M') }}</time>
+                                        {{ evento.estado_anterior or 'Inicio' }} → {{ evento.estado_nuevo }}
+                                        {% if evento.nombres %}<br><small>Por {{ evento.nombres }} {{ evento.apellido_paterno or '' }}</small>{% endif %}
+                                        {% if evento.observacion %}<br>{{ evento.observacion }}{% endif %}
+                                    </li>
+                                    {% else %}
+                                    <li>Esta operación todavía no tiene eventos registrados.</li>
+                                    {% endfor %}
+                                </ol>
+                            </details>
+                        </td>
+                        <td>
+                            {% if item.puede_pagar and item.estado == 'PENDIENTE_PAGO' and (not item.estado_pago or item.estado_pago in ('ANULADO', 'DEVUELTO')) %}
+                            <a class="btn" href="{{ url_for('solicitar_pago_operacion', id_operacion=item.id_operacion) }}">Reportar pago</a>
+                            {% endif %}
+                            {% if item.puede_calificar %}
+                            <a class="btn" href="{{ url_for('calificar_operacion', id_operacion=item.id_operacion) }}">Calificar operación</a>
+                            {% elif item.estado == 'COMPLETADA' %}
+                            <span class="muted">Calificación registrada</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}<tr><td colspan="9">Todavía no tienes operaciones.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+<script>
+    document.querySelectorAll(".tracking-map").forEach((panel) => {
+        const status = panel.querySelector(".tracking-status");
+        const frame = panel.querySelector(".tracking-map-frame");
+        const link = panel.querySelector(".tracking-map-link");
+        const routeLink = panel.querySelector(".tracking-route-link");
+        const refresh = async () => {
+            try {
+                const response = await fetch(panel.dataset.locationUrl, {
+                    headers: { "Accept": "application/json" }
+                });
+                if (!response.ok) throw new Error("No se pudo consultar la ubicación.");
+                const result = await response.json();
+                if (!result.ubicacion) {
+                    status.textContent = "El transportista todavía no ha compartido su ubicación.";
+                    return;
+                }
+                const { latitud, longitud, fecha_reporte } = result.ubicacion;
+                const coordinates = `${latitud},${longitud}`;
+                const mapUrl = new URL("https://maps.google.com/maps");
+                mapUrl.search = new URLSearchParams({
+                    q: coordinates,
+                    z: "15",
+                    output: "embed"
+                });
+                let map = frame.querySelector("iframe");
+                if (!map) {
+                    map = document.createElement("iframe");
+                    map.title = "Ubicación GPS actual del transporte";
+                    map.width = "280";
+                    map.height = "180";
+                    map.loading = "lazy";
+                    map.referrerPolicy = "no-referrer-when-downgrade";
+                    map.style.border = "0";
+                    frame.appendChild(map);
+                }
+                map.src = mapUrl.toString();
+                link.href = `https://www.google.com/maps?q=${encodeURIComponent(coordinates)}`;
+                link.hidden = false;
+                if (routeLink && panel.dataset.destLat && panel.dataset.destLon) {
+                    const routeUrl = new URL("https://www.google.com/maps/dir/");
+                    routeUrl.search = new URLSearchParams({
+                        api: "1",
+                        origin: coordinates,
+                        destination: `${panel.dataset.destLat},${panel.dataset.destLon}`,
+                        travelmode: "driving"
+                    });
+                    routeLink.href = routeUrl.toString();
+                    routeLink.hidden = false;
+                }
+                const reportTime = fecha_reporte
+                    ? new Date(fecha_reporte).toLocaleString()
+                    : "hora no disponible";
+                status.textContent = `Última ubicación GPS: ${reportTime}`;
+            } catch (error) {
+                status.textContent = error.message;
+            }
+        };
+        refresh();
+        window.setInterval(refresh, 30000);
+    });
+</script>
+{% endblock %}

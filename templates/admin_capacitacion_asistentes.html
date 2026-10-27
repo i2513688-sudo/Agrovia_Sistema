@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Asistentes{% endblock %}
+{% block content %}
+<main class="container">
+    <h1>{{ capacitacion.titulo }}</h1>
+    <p>{{ capacitacion.fecha.strftime('%d/%m/%Y') }} · {{ capacitacion.lugar }}</p>
+    <section class="card">
+        <div class="table-container">
+            <table class="table">
+                <thead><tr><th>Asistente</th><th>Contacto</th><th>Inscripción</th><th>Asistencia</th><th></th></tr></thead>
+                <tbody>
+                    {% for item in asistentes %}
+                    <tr>
+                        <td>{{ item.nombres }} {{ item.apellido_paterno or '' }}</td>
+                        <td>{{ item.correo or '-' }}<br>{{ item.telefono }}</td>
+                        <td>{{ item.fecha_registro.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>
+                            <form method="post">
+                                <input type="hidden" name="id_asistencia" value="{{ item.id_asistencia }}">
+                                <select name="estado_asistencia">
+                                    {% for estado in estados_asistencia %}
+                                    <option value="{{ estado }}" {{ 'selected' if item.estado_asistencia == estado else '' }}>{{ estado|replace('_', ' ')|title }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn">Guardar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}<tr><td colspan="5">Aún no hay asistentes inscritos.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+{% endblock %}

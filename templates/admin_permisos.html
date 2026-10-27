@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Roles y permisos{% endblock %}
+{% block content %}
+<main class="container">
+    <h1>Roles y permisos</h1>
+    {% for rol in roles %}
+    <section class="card">
+        <details>
+            <summary><strong>{{ rol.nombre }}</strong>{% if rol.descripcion %} · {{ rol.descripcion }}{% endif %}</summary>
+            <form method="post" class="form">
+                <input type="hidden" name="id_rol" value="{{ rol.id_rol }}">
+                {% set asignados = permisos_por_rol.get(rol.id_rol, []) %}
+                {% for permiso in permisos %}
+                <label>
+                    <input type="checkbox" name="permisos" value="{{ permiso.id_permiso }}" style="width:auto"
+                           {% if permiso.id_permiso in asignados %}checked{% endif %}>
+                    {{ permiso.nombre }} <small>{{ permiso.codigo }} · {{ permiso.modulo }}</small>
+                </label>
+                {% endfor %}
+                <button type="submit" class="btn">Guardar permisos</button>
+            </form>
+        </details>
+    </section>
+    {% else %}
+    <p>No hay roles activos.</p>
+    {% endfor %}
+</main>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Reportar pago{% endblock %}
+{% block content %}
+<main class="container">
+    <h1>Reportar pago</h1>
+    <section class="card">
+        <p><b>Operación:</b> {{ operacion.codigo_operacion }}</p>
+        <p><b>Total:</b> S/ {{ '%.2f'|format(operacion.total_operacion or 0) }}</p>
+        <form method="post" class="form">
+            <label for="id_facturacion">Comprobante</label>
+            <select id="id_facturacion" name="id_facturacion" required>
+                {% for dato in facturaciones %}
+                <option value="{{ dato.id_facturacion }}">
+                    {% if dato.tipo_documento == 'DNI' %}Boleta simple · DNI{% else %}Factura · RUC{% endif %}
+                    {{ dato.numero_documento }} · {{ dato.nombre_razon_social }}
+                    {{ ' (predeterminado)' if dato.predeterminado else '' }}
+                </option>
+                {% endfor %}
+            </select>
+            <label for="metodo">Método de pago</label>
+            <select id="metodo" name="metodo" required>
+                <option value="TRANSFERENCIA_BANCARIA">Transferencia bancaria</option>
+                <option value="BILLETERA_DIGITAL">Billetera digital</option>
+                <option value="EFECTIVO">Efectivo</option>
+                <option value="OTRO">Otro</option>
+            </select>
+            <label for="referencia">Referencia o número de operación</label>
+            <input id="referencia" name="referencia" maxlength="120" placeholder="Código de operación bancaria o billetera">
+            <button type="submit" class="btn">Enviar pago a revisión</button>
+        </form>
+    </section>
+</main>
+{% endblock %}

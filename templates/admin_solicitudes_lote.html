@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Solicitudes de lote{% endblock %}
+
+{% block content %}
+<main class="container">
+    <h1>Solicitudes de lote</h1>
+    <p class="muted">Revisa y aprueba las solicitudes que envían los productores para publicar lotes.</p>
+
+    <div class="card">
+        <table class="table">
+            <tr>
+                <th>Código</th>
+                <th>Productor</th>
+                <th>Producto</th>
+                <th>Predio</th>
+                <th>Área</th>
+                <th>Imagen</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+                <th>Acción</th>
+            </tr>
+
+            {% for solicitud in solicitudes %}
+            <tr>
+                <td>{{ solicitud.codigo_solicitud }}</td>
+                <td>{{ solicitud.productor }}</td>
+                <td>{{ solicitud.producto }}</td>
+                <td>{{ solicitud.nombre_predio }}</td>
+                <td>{{ solicitud.area_cultivada }} ha</td>
+                <td>
+                    {% if solicitud.imagen %}
+                        <img src="{{ url_for('static', filename=solicitud.imagen) }}" alt="Imagen de solicitud" style="width: 70px; height: 58px; object-fit: cover; border-radius: 8px;">
+                    {% else %}
+                        <span class="muted">Sin imagen</span>
+                    {% endif %}
+                </td>
+                <td>{{ solicitud.estado }}</td>
+                <td>{{ solicitud.fecha_solicitud }}</td>
+                <td>
+                    {% if solicitud.estado == 'ENVIADA' %}
+                    <form method="post" action="{{ url_for('aprobar_solicitud_lote', id_solicitud=solicitud.id_solicitud) }}">
+                        <button type="submit" class="btn btn-primary">Aprobar y publicar</button>
+                    </form>
+                    {% else %}
+                    <span class="badge">{{ solicitud.estado }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="9">No hay solicitudes pendientes.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</main>
+{% endblock %}

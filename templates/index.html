@@ -1,0 +1,654 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+
+    Agrovia | Marketplace Agrícola
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<main class="container">
+
+
+    <!-- HERO -->
+
+    <section class="hero">
+
+        <div>
+
+            <h1>
+
+                Conectamos el campo
+
+                <span>
+                    con el mercado.
+                </span>
+
+            </h1>
+
+
+            <p>
+
+                Agrovia es una plataforma web que
+                conecta productores agrícolas con
+                compradores, facilitando la
+                comercialización de productos
+                agrícolas.
+
+            </p>
+
+
+            <div>
+
+                <a
+                    class="btn"
+                    href="{{ url_for('lotes') }}"
+                >
+
+                    <i class="fa-solid fa-basket-shopping"></i>
+
+                    Ver lotes disponibles
+
+                </a>
+
+
+            </div>
+
+        </div>
+
+
+        <div class="hero-image">
+
+            <img
+                src="{{ url_for('static', filename='img/sembrado papa.png') }}"
+                alt="Campo sembrado"
+            >
+
+        </div>
+
+    </section>
+
+
+
+    <!-- FUNCIONES PRINCIPALES -->
+
+    <section class="section">
+
+
+        <div class="section-header">
+
+            <h2>
+                ¿Qué puedes hacer en Agrovia?
+            </h2>
+
+        </div>
+
+
+        <div class="grid">
+
+
+            <div class="card">
+
+                <div class="card-icon">
+
+                    <i class="fa-solid fa-tractor"></i>
+
+                </div>
+
+
+                <h3>
+                    Productores
+                </h3>
+
+
+                <p>
+
+                    Registra tus predios, cultivos
+                    y solicitudes de lotes para
+                    ofrecer tus productos agrícolas.
+
+                </p>
+
+            </div>
+
+
+
+            <div class="card">
+
+                <div class="card-icon">
+
+                    <i class="fa-solid fa-store"></i>
+
+                </div>
+
+
+                <h3>
+                    Compradores
+                </h3>
+
+
+                <p>
+
+                    Encuentra productos agrícolas
+                    y lotes disponibles de diferentes
+                    productores.
+
+                </p>
+
+            </div>
+
+
+
+            <div class="card">
+
+                <div class="card-icon">
+
+                    <i class="fa-solid fa-handshake"></i>
+
+                </div>
+
+
+                <h3>
+                    Operaciones
+                </h3>
+
+
+                <p>
+
+                    Gestiona cotizaciones, reservas,
+                    operaciones comerciales y pagos.
+
+                </p>
+
+            </div>
+
+
+
+            <div class="card">
+
+                <div class="card-icon">
+
+                    <i class="fa-solid fa-truck"></i>
+
+                </div>
+
+
+                <h3>
+                    Entregas
+                </h3>
+
+
+                <p>
+
+                    Realiza el seguimiento de las
+                    entregas y registra la recepción
+                    de los productos.
+
+                </p>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- PRODUCTOS -->
+
+    <section class="section">
+
+
+        <div class="section-header">
+
+            <h2>
+                Productos agrícolas
+            </h2>
+
+
+            <a href="{{ url_for('productos') }}">
+
+                Ver todos
+
+                <i class="fa-solid fa-arrow-right"></i>
+
+            </a>
+
+        </div>
+
+
+        <div class="grid">
+
+
+            {% for product in products %}
+
+
+                <div class="product-card">
+
+
+                    <div class="product-image">
+
+                        <img src="{{ url_for('static', filename='img/' ~ product.imagen) }}" alt="{{ product.nombre }}" />
+
+                    </div>
+
+
+                    <div class="product-content">
+
+
+                        <div class="product-category">
+
+                            {{ product.categoria }}
+
+                        </div>
+
+
+                        <h3>
+
+                            {{ product.nombre }}
+
+                        </h3>
+
+
+                        {% if product.descripcion and product.descripcion != 'Producto agrícola del piloto' %}
+                            <p>{{ product.descripcion }}</p>
+                        {% elif not product.descripcion %}
+                            <p>
+                                Producto agrícola
+                                disponible para
+                                comercialización.
+                            </p>
+                        {% endif %}
+
+
+                    </div>
+
+                </div>
+
+
+            {% else %}
+
+
+                <div class="card">
+
+                    <div class="card-icon">
+
+                        <i class="fa-solid fa-box-open"></i>
+
+                    </div>
+
+
+                    <h3>
+                        No hay productos
+                    </h3>
+
+
+                    <p>
+
+                        Todavía no existen productos
+                        activos registrados en la
+                        base de datos.
+
+                    </p>
+
+                </div>
+
+
+            {% endfor %}
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- LOTES DISPONIBLES -->
+
+    <section class="section">
+
+
+        <div class="section-header">
+
+            <h2>
+                Lotes disponibles
+            </h2>
+
+
+            <a href="{{ url_for('lotes') }}">
+
+                Ver todos
+
+                <i class="fa-solid fa-arrow-right"></i>
+
+            </a>
+
+        </div>
+
+
+        <div class="grid">
+
+
+            {% for lot in lots %}
+
+
+                <div class="lot-card">
+
+
+                    <span class="lot-status">
+
+                        {{ lot.estado }}
+
+                    </span>
+
+
+                    <h3>
+
+                        {{ lot.producto }}
+
+                    </h3>
+
+
+                    <p>
+
+                        <strong>
+                            Productor:
+                        </strong>
+
+                        {{ lot.productor }}
+
+                    </p>
+
+
+                    <p>
+
+                        <strong>
+                            Producción:
+                        </strong>
+
+                        {{ lot.produccion_min }}
+
+                        -
+
+                        {{ lot.produccion_max }}
+
+                    </p>
+
+
+                    {% if lot.fecha_cosecha_inicio %}
+
+                        <p>
+
+                            <strong>
+                                Cosecha:
+                            </strong>
+
+                            {{ lot.fecha_cosecha_inicio }}
+
+                            {% if lot.fecha_cosecha_fin %}
+
+                                -
+
+                                {{ lot.fecha_cosecha_fin }}
+
+                            {% endif %}
+
+                        </p>
+
+                    {% endif %}
+
+
+                    {% if lot.precio_publicado %}
+
+                        <div class="lot-price">
+
+                            S/
+
+                            {{ "%.2f"|format(
+                                lot.precio_publicado
+                            ) }}
+
+                        </div>
+
+                    {% endif %}
+
+
+                </div>
+
+
+            {% else %}
+
+
+                <div class="card">
+
+                    <div class="card-icon">
+
+                        <i class="fa-solid fa-layer-group"></i>
+
+                    </div>
+
+
+                    <h3>
+                        No hay lotes disponibles
+                    </h3>
+
+
+                    <p>
+
+                        Actualmente no existen lotes
+                        disponibles para
+                        comercialización.
+
+                    </p>
+
+                </div>
+
+
+            {% endfor %}
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- COMO FUNCIONA -->
+
+    <section class="section">
+
+
+        <div class="section-header">
+
+            <h2>
+                ¿Cómo funciona Agrovia?
+            </h2>
+
+        </div>
+
+
+        <div class="grid">
+
+
+            <div class="card">
+
+                <div class="card-icon">
+
+                    <i class="fa-solid fa-user-plus"></i>
+
+                </div>
+
+
+                <h3>
+                    01. Registro
+                </h3>
+
+
+                <p>
+
+                    El usuario crea su cuenta
+                    como productor o comprador.
+
+                </p>
+
+            </div>
+
+
+
+            <div class="card">
+
+                <div class="card-icon">
+
+                    <i class="fa-solid fa-seedling"></i>
+
+                </div>
+
+
+                <h3>
+                    02. Publicación
+                </h3>
+
+
+                <p>
+
+                    El productor registra su predio,
+                    cultivo y solicitud de lote.
+
+                </p>
+
+            </div>
+
+
+
+            <div class="card">
+
+                <div class="card-icon">
+
+                    <i class="fa-solid fa-magnifying-glass"></i>
+
+                </div>
+
+
+                <h3>
+                    03. Búsqueda
+                </h3>
+
+
+                <p>
+
+                    El comprador consulta los
+                    productos y lotes disponibles.
+
+                </p>
+
+            </div>
+
+
+
+            <div class="card">
+
+                <div class="card-icon">
+
+                    <i class="fa-solid fa-handshake"></i>
+
+                </div>
+
+
+                <h3>
+                    04. Operación
+                </h3>
+
+
+                <p>
+
+                    Se gestiona la cotización,
+                    reserva, operación y pago.
+
+                </p>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- LLAMADA FINAL -->
+
+    <section class="section">
+
+
+        <div
+            class="hero"
+            style="grid-template-columns: 1fr;"
+        >
+
+            <div>
+
+                <h1 style="font-size: 32px;">
+
+                    Forma parte de Agrovia
+
+                </h1>
+
+
+                <p>
+
+                    Productores y compradores pueden
+                    utilizar la plataforma para
+                    facilitar la comercialización
+                    de productos agrícolas.
+
+                </p>
+
+
+                {% if not session_user %}
+
+
+                    <a
+                        class="btn"
+                        href="{{ url_for('registro') }}"
+                    >
+
+                        <i class="fa-solid fa-user-plus"></i>
+
+                        Registrarme
+
+                    </a>
+
+
+                {% elif 'ADMINISTRADOR' in session_roles %}
+                    <a class="btn" href="{{ url_for('dashboard') }}">
+                        <i class="fa-solid fa-chart-line"></i>
+                        Ir al dashboard
+                    </a>
+                {% elif 'PRODUCTOR' in session_roles %}
+                    <a class="btn" href="{{ url_for('solicitar_lote') }}">
+                        <i class="fa-solid fa-plus"></i>
+                        Publicar lote
+                    </a>
+                {% else %}
+                    <a class="btn" href="{{ url_for('lotes') }}">
+                        <i class="fa-solid fa-layer-group"></i>
+                        Explorar lotes
+                    </a>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+</main>
+
+
+{% endblock %}

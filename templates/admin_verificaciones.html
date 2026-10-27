@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Verificaciones{% endblock %}
+
+{% block content %}
+<main class="container">
+    <h1>Verificaciones de lotes</h1>
+    <p class="muted">Revisa cada visita de campo y registra el resultado técnico para pasar al siguiente paso de la operación.</p>
+
+    <div class="table-container">
+        <table class="table">
+            <tr>
+                <th>Código</th>
+                <th>Solicitud</th>
+                <th>Productor</th>
+                <th>Producto</th>
+                <th>Predio</th>
+                <th>Fecha programada</th>
+                <th>Resultado</th>
+                <th>Estado</th>
+                <th>Acción</th>
+            </tr>
+
+            {% for item in verificaciones %}
+            <tr>
+                <td>{{ item.codigo_verificacion }}</td>
+                <td>{{ item.codigo_solicitud }}</td>
+                <td>{{ item.productor }}</td>
+                <td>{{ item.producto }}</td>
+                <td>{{ item.nombre_predio }}</td>
+                <td>{{ item.fecha_programada }}</td>
+                <td>{{ item.resultado or 'PENDIENTE' }}</td>
+                <td>{{ item.estado }}</td>
+                <td>
+                    <a class="btn" href="{{ url_for('evaluar_verificacion', id_verificacion=item.id_verificacion) }}">Evaluar</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="9">No hay verificaciones registradas.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</main>
+{% endblock %}

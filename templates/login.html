@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="form">
+
+    <h2>Iniciar sesión</h2>
+
+    <p class="muted">
+        Ingresa con tu correo o número de documento.
+    </p>
+
+    <form method="POST">
+
+        <label>
+            Correo o documento
+        </label>
+
+        <input
+            type="text"
+            name="login"
+            required
+        >
+
+        <label>
+            Contraseña
+        </label>
+
+        <input
+            type="password"
+            name="password"
+            required
+        >
+
+        <button
+            class="btn"
+            type="submit"
+        >
+            Ingresar
+        </button>
+
+    </form>
+
+    <br>
+
+    <p>
+        ¿No tienes una cuenta?
+        <a href="{{ url_for('registro') }}">
+            Registrarse
+        </a>
+    </p>
+
+    <p>
+        <a href="{{ url_for('recuperar_cuenta') }}">¿Olvidaste tu contraseña?</a>
+    </p>
+
+</div>
+
+{% endblock %}

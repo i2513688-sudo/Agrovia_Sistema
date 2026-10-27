@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Notificaciones{% endblock %}
+
+{% block content %}
+<main class="container">
+    <h1>Enviar notificaciones</h1>
+
+    <form method="post" class="card-form">
+        <div class="grid three-columns">
+            <div>
+                <label>Usuario</label>
+                <select name="id_usuario" required>
+                    <option value="">Selecciona un usuario</option>
+                    {% for u in usuarios %}
+                    <option value="{{ u.id_usuario }}">{{ u.nombre }} - {{ u.email }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label>Tipo</label>
+                <select name="tipo">
+                    <option value="INFO">Info</option>
+                    <option value="SUCCESS">Éxito</option>
+                    <option value="WARNING">Advertencia</option>
+                    <option value="DANGER">Crítico</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Título</label>
+                <input type="text" name="titulo" required>
+            </div>
+        </div>
+
+        <div>
+            <label>Mensaje</label>
+            <textarea name="mensaje" rows="4" required></textarea>
+        </div>
+
+        <button type="submit" class="btn">Enviar notificación</button>
+    </form>
+
+    <h2>Historial</h2>
+    <div class="table-container">
+        <table class="table">
+            <tr>
+                <th>Usuario</th>
+                <th>Tipo</th>
+                <th>Título</th>
+                <th>Mensaje</th>
+                <th>Fecha</th>
+            </tr>
+
+            {% for n in notificaciones %}
+            <tr>
+                <td>{{ n.usuario or 'Sistema' }}</td>
+                <td>{{ n.tipo }}</td>
+                <td>{{ n.titulo }}</td>
+                <td>{{ n.mensaje }}</td>
+                <td>{{ n.fecha }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5">No hay notificaciones registradas.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</main>
+{% endblock %}

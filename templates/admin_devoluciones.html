@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Devoluciones{% endblock %}
+
+{% block content %}
+<main class="container">
+    <h1>Devoluciones</h1>
+    <p class="muted">Gestión de devoluciones asociadas a operaciones y pagos realizados.</p>
+
+    <div class="table-container">
+        <table class="table">
+            <tr>
+                <th>Código</th>
+                <th>Operación</th>
+                <th>Producto</th>
+                <th>Comprador</th>
+                <th>Productor</th>
+                <th>Monto</th>
+                <th>Motivo</th>
+                <th>Estado</th>
+                <th>Acción</th>
+            </tr>
+
+            {% for item in devoluciones %}
+            <tr>
+                <td>{{ item.codigo_devolucion }}</td>
+                <td>{{ item.codigo_operacion }}</td>
+                <td>{{ item.producto }}</td>
+                <td>{{ item.comprador }}</td>
+                <td>{{ item.productor }}</td>
+                <td>{{ item.monto }}</td>
+                <td>{{ item.motivo }}</td>
+                <td>{{ item.estado }}</td>
+                <td>
+                    <form method="post" action="{{ url_for('solicitar_devolucion', id_operacion=item.id_operacion) }}" class="inline-form">
+                        <input type="hidden" name="motivo" value="Devolución gestionada por administración">
+                        <input type="hidden" name="monto" value="{{ item.monto or 0 }}">
+                        <button type="submit" class="btn btn-danger">Registrar</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="9">No hay devoluciones registradas.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</main>
+{% endblock %}

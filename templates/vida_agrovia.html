@@ -1,0 +1,596 @@
+{% extends "base.html" %}
+
+{% block title %}Vida Agrovia | Conocimiento para el Campo{% endblock %}
+
+{% block content %}
+
+<style>
+    .vida-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .vida-hero {
+        position: relative;
+        min-height: 350px;
+        border-radius: 14px;
+        overflow: hidden;
+        margin-bottom: 28px;
+        background:
+            linear-gradient(
+                rgba(0, 0, 0, 0.45),
+                rgba(0, 0, 0, 0.45)
+            ),
+            url("{{ url_for('static', filename='img/sembrado veteraga.png') }}")
+            center/cover no-repeat;
+        display: flex;
+        align-items: center;
+    }
+
+    .vida-hero-content {
+        color: white;
+        padding: 45px;
+        max-width: 650px;
+    }
+
+    .vida-label {
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+    }
+
+    .vida-hero h1 {
+        font-size: 42px;
+        line-height: 1.1;
+        margin: 0 0 16px;
+        font-weight: 700;
+    }
+
+    .vida-hero p {
+        font-size: 16px;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .vida-layout {
+        display: grid;
+        grid-template-columns: 1fr 300px;
+        gap: 25px;
+    }
+
+    .vida-filtros {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .vida-filtro {
+        border: 1px solid #d5d5d5;
+        background: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+    .vida-filtro.activo {
+        background: #278548;
+        color: white;
+        border-color: #278548;
+    }
+
+    .capacitaciones-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+    }
+
+    .capacitacion-card {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .capacitacion-img {
+        height: 150px;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+    }
+
+    .capacitacion-body {
+        padding: 16px;
+    }
+
+    .capacitacion-categoria {
+        color: #4d8d62;
+        font-size: 10px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .capacitacion-body h3 {
+        font-size: 17px;
+        margin: 0 0 8px;
+        color: #333;
+    }
+
+    .capacitacion-body p {
+        font-size: 12px;
+        color: #666;
+        line-height: 1.5;
+        min-height: 55px;
+    }
+
+    .btn-eliminar-video {
+        width: 100%;
+        margin-top: 8px;
+        padding: 8px;
+        border: 1px solid #d7b6b6;
+        border-radius: 6px;
+        background: #fff;
+        color: #9d3030;
+        cursor: pointer;
+        font-size: 12px;
+    }
+
+    .eventos-card {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 18px;
+        height: fit-content;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .eventos-card h2 {
+        font-size: 18px;
+        margin: 0 0 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .admin-capacitacion-form {
+        margin-bottom: 20px;
+        padding: 14px;
+        background: #f5faf6;
+        border: 1px solid #d8e7db;
+        border-radius: 8px;
+    }
+
+    .admin-capacitacion-form summary {
+        color: #246d3d;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .admin-capacitacion-form form {
+        display: grid;
+        gap: 9px;
+        margin-top: 14px;
+    }
+
+    .admin-capacitacion-form input,
+    .admin-capacitacion-form textarea,
+    .admin-capacitacion-form select {
+        width: 100%;
+        padding: 9px;
+        border: 1px solid #ccd8ce;
+        border-radius: 5px;
+        font: inherit;
+        font-size: 12px;
+    }
+
+    .admin-capacitacion-form textarea {
+        min-height: 70px;
+        resize: vertical;
+    }
+
+    .evento-inscripcion {
+        display: block;
+        margin-top: 8px;
+    }
+
+    .evento-inscripcion button,
+    .evento-inscripcion a {
+        display: inline-block;
+        padding: 6px 9px;
+        border: 0;
+        border-radius: 5px;
+        background: #278548;
+        color: white;
+        font: inherit;
+        font-size: 11px;
+        font-weight: 700;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .evento-vacio {
+        color: #68766b;
+        font-size: 12px;
+        line-height: 1.5;
+        margin-bottom: 14px;
+    }
+
+    .evento {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .evento-fecha {
+        width: 40px;
+        min-width: 40px;
+        height: 45px;
+        background: #e8eef7;
+        border-radius: 6px;
+        text-align: center;
+        padding-top: 5px;
+    }
+
+    .evento-mes {
+        display: block;
+        font-size: 9px;
+        font-weight: 700;
+        color: #61728a;
+    }
+
+    .evento-dia {
+        display: block;
+        font-size: 16px;
+        font-weight: 700;
+        color: #52667f;
+    }
+
+    .evento-info h3 {
+        font-size: 13px;
+        margin: 0 0 5px;
+        color: #333;
+    }
+
+    .evento-info p {
+        font-size: 10px;
+        margin: 3px 0;
+        color: #666;
+    }
+
+    .evento-info a {
+        display: inline-block;
+        margin-top: 8px;
+        font-size: 11px;
+        color: #2e7d46;
+        font-weight: 700;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .evento-info a:hover {
+        color: #1d5f36;
+    }
+
+    .btn-calendario {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 11px 12px;
+        border: 1px solid #d8e2d8;
+        background: white;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #2f7f46;
+        text-decoration: none;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .btn-calendario:hover {
+        background: #f5faf6;
+        border-color: #bdd9c4;
+    }
+
+    @media (max-width: 850px) {
+        .vida-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .capacitaciones-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .vida-hero h1 {
+            font-size: 32px;
+        }
+    }
+</style>
+
+
+<div class="vida-container">
+
+    <!-- HERO -->
+    <section class="vida-hero">
+
+        <div class="vida-hero-content">
+
+            <div class="vida-label">
+                🌱 EDUCACIÓN CONTINUA
+            </div>
+
+            <h1>
+                Vida Agrovia:<br>
+                Conocimiento para el Campo
+            </h1>
+
+            <p>
+                Mejora el rendimiento de tus cultivos con nuestros módulos
+                de capacitación, mejores prácticas y acceso a expertos
+                del sector agrícola.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- CONTENIDO -->
+    <div class="vida-layout">
+
+        <!-- IZQUIERDA -->
+        <section>
+
+            <div class="vida-filtros">
+
+                <button type="button" class="vida-filtro activo" data-filter="TODAS">
+                    Todas
+                </button>
+
+                <button type="button" class="vida-filtro" data-filter="CAPACITACIONES">
+                    Capacitaciones
+                </button>
+
+                <button type="button" class="vida-filtro" data-filter="BUENAS PRÁCTICAS">
+                    Buenas Prácticas
+                </button>
+
+                <button type="button" class="vida-filtro" data-filter="TECNOLOGÍA">
+                    Tecnología
+                </button>
+
+            </div>
+
+
+            <div class="capacitaciones-grid">
+
+                {% for capacitacion in capacitaciones %}
+                {% set imagen_capacitacion = url_for('static', filename='img/' + capacitacion.imagen) %}
+
+                <article class="capacitacion-card" data-category="{{ capacitacion.categoria }}">
+
+                    <div
+                        class="capacitacion-img"
+                        style="background-image: url('{{ imagen_capacitacion }}');"
+                    ></div>
+
+                    {% if capacitacion.titulo == 'Optimización de Riego con Sensores IoT' %}
+                    <a class="btn-calendario"
+                       href="https://www.facebook.com/share/p/1FVxmshvxB/"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       style="margin: 10px 14px 0; width: calc(100% - 28px);">
+                        Ver charla aplicada en Facebook
+                    </a>
+                    {% endif %}
+
+                    <div class="capacitacion-body">
+
+                        <div class="capacitacion-categoria">
+                            {{ capacitacion.categoria }}
+                        </div>
+
+                        <h3>
+                            {{ capacitacion.titulo }}
+                        </h3>
+
+                        <p>
+                            {{ capacitacion.descripcion }}
+                        </p>
+
+                        {% if session_roles and 'ADMINISTRADOR' in session_roles and capacitacion.id_contenido is defined and capacitacion.video %}
+                        <form method="post" action="{{ url_for('eliminar_video_contenido', id_contenido=capacitacion.id_contenido) }}" onsubmit="return confirm('¿Eliminar el video de este contenido? El contenido seguirá publicado.');">
+                            <button type="submit" class="btn-eliminar-video">Eliminar video</button>
+                        </form>
+                        {% endif %}
+
+                        {% if capacitacion.id_contenido is defined and 'PUBLICACIONES_GESTIONAR' in session.get('permissions', []) %}
+                        <details class="admin-capacitacion-form">
+                            <summary>Editar contenido</summary>
+                            <form method="post" action="{{ url_for('actualizar_contenido_educativo', id_contenido=capacitacion.id_contenido) }}">
+                                <input type="text" name="titulo" value="{{ capacitacion.titulo }}" maxlength="180" required>
+                                <textarea name="descripcion" required>{{ capacitacion.descripcion }}</textarea>
+                                <select name="categoria" required>
+                                    {% for opcion in ['CAPACITACIONES', 'BUENAS PRÁCTICAS', 'TECNOLOGÍA'] %}
+                                    <option value="{{ opcion }}" {{ 'selected' if capacitacion.categoria == opcion else '' }}>{{ opcion }}</option>
+                                    {% endfor %}
+                                </select>
+                                <input type="text" name="tipo" value="{{ capacitacion.tipo }}" maxlength="80" required>
+                                <select name="imagen" required>
+                                    {% for opcion in ['cosecha choclo.png', 'cosecha papa.png', 'cosecha zanahoria.png'] %}
+                                    <option value="{{ opcion }}" {{ 'selected' if capacitacion.imagen == opcion else '' }}>{{ opcion }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn">Guardar contenido</button>
+                            </form>
+                            <form method="post" action="{{ url_for('eliminar_contenido_educativo', id_contenido=capacitacion.id_contenido) }}" onsubmit="return confirm('¿Retirar este contenido de Vida Agrovia?');">
+                                <button type="submit" class="btn-eliminar-video">Retirar contenido</button>
+                            </form>
+                        </details>
+                        {% endif %}
+
+                    </div>
+
+                </article>
+
+                {% endfor %}
+
+            </div>
+
+
+            {% if session_roles and 'ADMINISTRADOR' in session_roles %}
+            <details class="admin-capacitacion-form" style="margin-top: 18px;">
+                <summary>Cargar más contenidos</summary>
+                <form method="post" action="{{ url_for('crear_contenido_educativo') }}" enctype="multipart/form-data">
+                    <input type="text" name="titulo" placeholder="Título del contenido" maxlength="180" required>
+                    <textarea name="descripcion" placeholder="Descripción del contenido" required></textarea>
+                    <select name="categoria" required>
+                        <option value="">Selecciona una categoría</option>
+                        <option value="CAPACITACIONES">Capacitaciones</option>
+                        <option value="BUENAS PRÁCTICAS">Buenas prácticas</option>
+                        <option value="TECNOLOGÍA">Tecnología</option>
+                    </select>
+                    <input type="text" name="tipo" placeholder=" maxlength="80" required>
+                    <select name="imagen" required>
+                        <option value="">Selecciona una imagen</option>
+                        <option value="cosecha choclo.png">Choclo</option>
+                        <option value="cosecha papa.png">Papa</option>
+                        <option value="cosecha zanahoria.png">Zanahoria</option>
+                    </select>
+                    <label for="contenido-video">Video opcional (MP4, WebM u OGG, máximo 100 MB)</label>
+                    <input id="contenido-video" type="file" name="video" accept="video/mp4,video/webm,video/ogg">
+                    <button type="submit" class="btn">Publicar contenido</button>
+                </form>
+            </details>
+            {% endif %}
+
+        </section>
+
+
+        <!-- DERECHA -->
+        <aside class="eventos-card" id="proximas-capacitaciones">
+
+            <h2>
+                📅 Próximas Capacitaciones
+            </h2>
+
+            {% if session_roles and 'ADMINISTRADOR' in session_roles %}
+            <details class="admin-capacitacion-form">
+                <summary>Programar próxima capacitación</summary>
+                <form method="post" action="{{ url_for('crear_capacitacion') }}">
+                    <input type="text" name="titulo" placeholder="Título de la capacitación" maxlength="180" required>
+                    <textarea name="descripcion" placeholder="Descripción y contenido"></textarea>
+                    <input type="date" name="fecha" min="{{ today if today is defined else '' }}" required>
+                    <input type="time" name="hora" required>
+                    <input type="text" name="lugar" placeholder="Lugar o modalidad (por ejemplo, Online)" maxlength="255" required>
+                    <input type="number" name="capacidad" placeholder="Cupos (opcional)" min="1">
+                    <button type="submit" class="btn">Publicar capacitación</button>
+                </form>
+            </details>
+            {% endif %}
+
+            {% if 'CAPACITACIONES_GESTIONAR' in session.get('permissions', []) %}
+            <a class="btn-calendario" href="{{ url_for('admin_capacitaciones') }}">Gestionar asistentes</a>
+            {% endif %}
+
+            {% for evento in eventos %}
+
+            <div class="evento">
+
+                <div class="evento-fecha">
+
+                    <span class="evento-mes">
+                        {{ evento.mes }}
+                    </span>
+
+                    <span class="evento-dia">
+                        {{ evento.dia }}
+                    </span>
+
+                </div>
+
+                <div class="evento-info">
+
+                    <h3>
+                        {{ evento.titulo }}
+                    </h3>
+
+                    <p>
+                        ◷ {{ evento.hora }} - {{ evento.modalidad }}
+                    </p>
+                    {% if evento.capacidad is not none %}
+                    <p>Cupos: {{ evento.inscritos }}/{{ evento.capacidad }}</p>
+                    {% endif %}
+
+                    {% if evento.capacidad is not none and evento.inscritos >= evento.capacidad %}
+                    <p><strong>Cupos agotados</strong></p>
+                    {% elif session_user %}
+                    <form class="evento-inscripcion" method="post" action="{{ url_for('inscribir_capacitacion', id_capacitacion=evento.id_capacitacion) }}">
+                        <button type="submit">Inscribirme</button>
+                    </form>
+                    {% else %}
+                    <div class="evento-inscripcion">
+                        <a href="{{ url_for('login') }}">Inicia sesión para inscribirte</a>
+                    </div>
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+            {% else %}
+            <p class="evento-vacio">Aún no hay capacitaciones programadas.</p>
+            {% endfor %}
+
+
+            <a class="btn-calendario" href="#proximas-capacitaciones">
+                Ver calendario completo
+            </a>
+
+        </aside>
+
+    </div>
+
+    <section class="eventos-card" style="margin-top: 24px;">
+        <h2>Publicaciones de Agrovia</h2>
+        {% for publicacion in publicaciones %}
+        <article style="padding: 14px 0; border-bottom: 1px solid #ddd;">
+            <small>{{ publicacion.tipo|replace('_', ' ')|title }}{% if publicacion.fecha_publicacion %} · {{ publicacion.fecha_publicacion.strftime('%d/%m/%Y') }}{% endif %}</small>
+            <h3>{{ publicacion.titulo }}</h3>
+            <p style="white-space: pre-line;">{{ publicacion.contenido }}</p>
+        </article>
+        {% else %}
+        <p>Aún no hay publicaciones disponibles.</p>
+        {% endfor %}
+    </section>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const filterButtons = document.querySelectorAll('.vida-filtro');
+        const cards = document.querySelectorAll('.capacitacion-card');
+
+        filterButtons.forEach(function (button) {
+            button.addEventListener('click', function () {
+                const filter = button.dataset.filter;
+                filterButtons.forEach(function (item) {
+                    item.classList.toggle('activo', item === button);
+                });
+
+                cards.forEach(function (card) {
+                    const visible = filter === 'TODAS' || card.dataset.category === filter;
+                    card.style.display = visible ? 'block' : 'none';
+                });
+            });
+        });
+    });
+</script>
+
+{% endblock %}

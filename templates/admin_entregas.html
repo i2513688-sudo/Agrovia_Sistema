@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Entregas{% endblock %}
+
+{% block content %}
+<main class="container">
+    <h1>Confirmación de entregas</h1>
+    <p class="muted">Revisa la ubicación GPS del transporte en Google Maps. Puedes verificar su llegada cuando haya un reporte reciente (últimos 15 minutos); la confirmación de entrega sigue siendo un paso separado.</p>
+
+    <div class="table-container">
+        <table class="table">
+            <tr>
+                <th>Operación</th>
+                <th>Producto</th>
+                <th>Comprador</th>
+                <th>Transportista</th>
+                <th>Vehículo</th>
+                <th>Transporte</th>
+                <th>Ubicación GPS / Maps</th>
+                <th>Entrega</th>
+                <th>Acción</th>
+            </tr>
+
+            {% for item in entregas %}
+            <tr>
+                <td>{{ item.codigo_operacion }}</td>
+                <td>{{ item.producto }}</td>
+                <td>{{ item.comprador }}</td>
+                <td>{{ item.nombre_empresa }}</td>
+                <td>{{ item.placa }}</td>
+                <td>{{ item.codigo_transporte }}<br><small>{{ item.estado_transporte }}</small></td>
+                <td>
+                    {% if item.latitud_actual is not none and item.longitud_actual is not none %}
+                    <div class="admin-tracking-map"
+                         data-lat="{{ item.latitud_actual }}"
+                         data-lon="{{ item.longitud_actual }}">
+                        <p class="tracking-status">Ubicación GPS reportada</p>
+                        <iframe
+                            title="Ubicación GPS del transporte {{ item.codigo_transporte }} en Google Maps"
+                            width="280"
+                            height="180"
+                            style="border: 0; border-radius: 12px;"
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade"
+                            src="https://maps.google.com/maps?q={{ item.latitud_actual }},{{ item.longitud_actual }}&amp;z=15&amp;output=embed">
+                        </iframe>
+                        <p><a class="tracking-map-link"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              href="https://www.google.com/maps?q={{ item.latitud_actual }},{{ item.longitud_actual }}">Abrir ubicación en Google Maps</a></p>
+                    </div>
+                    {% if item.fecha_ubicacion %}
+                    <small>Reportada: {{ item.fecha_ubicacion.strftime('%d/%m/%Y %H:%M:%S') }}</small>
+                    {% if item.ubicacion_reciente %}
+                    <br><span class="badge">Ubicación reciente</span>
+                    {% else %}
+                    <br><span class="muted">Ubicación desactualizada</span>
+                    {% endif %}
+                    {% endif %}
+                    {% else %}
+                    <span class="muted">El transportista aún no comparte GPS.</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if item.id_entrega %}
+                        {{ item.codigo_entrega }}<br>
+                        <small>{{ item.estado_entrega }}</small>
+                    {% else %}
+                        <span class="muted">Sin entrega</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if item.estado_transporte == 'EN_RUTA' and item.ubicacion_reciente and not item.id_entrega %}
+                    <form method="post" action="{{ url_for('verificar_llegada_transporte', id_transporte=item.id_transporte) }}">
+                        <button type="submit" class="btn">Verificar llegada con GPS</button>
+                    </form>
+                    {% elif item.estado_transporte == 'LLEGADA_DESTINO' %}
+                    <span class="badge">Llegada verificada</span>
+                    {% elif item.estado_transporte == 'EN_RUTA' and not item.id_entrega %}
+                    <small class="muted">Se requiere un reporte GPS de los últimos 15 minutos para verificar la llegada.</small>
+                    {% endif %}
+                    {% if not item.id_entrega %}
+                    <form method="post" action="{{ url_for('confirmar_entrega', id_transporte=item.id_transporte) }}" class="inline-form">
+                        <div class="stacked-fields">
+                            <input type="text" name="nombre_receptor" value="Recepción administrativa" placeholder="Receptor">
+                            <input type="text" name="documento_receptor" value="N/A" placeholder="Documento">
+                            <textarea name="observaciones" rows="2" placeholder="Observaciones"></textarea>
+                            <button type="submit" class="btn">Confirmar entrega</button>
+                        </div>
+                    </form>
+                    {% else %}
+                    <span class="badge">Confirmada</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="9">No hay transportes registrados.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</main>
+{% endblock %}

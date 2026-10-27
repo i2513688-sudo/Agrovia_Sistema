@@ -1,0 +1,527 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<main class="container dashboard">
+    <style>
+    .dashboard {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .dashboard__header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 22px;
+    }
+
+    .dashboard__header h1 {
+        margin: 0 0 6px;
+        color: #1b3d2f;
+    }
+
+    .dashboard__header p {
+        margin: 0;
+    }
+
+    .dashboard__filters,
+    .dashboard__chart-grid,
+    .dashboard__summary-grid,
+    .dashboard__metrics {
+        display: grid;
+        gap: 18px;
+    }
+
+    .dashboard__filters {
+        grid-template-columns: repeat(2, minmax(145px, 1fr)) auto;
+        align-items: end;
+        margin: 0;
+        padding: 14px;
+    }
+
+    .dashboard__metrics {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        margin: 0 0 24px;
+    }
+
+    .dashboard__metric {
+        min-height: 124px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 20px;
+    }
+
+    .dashboard__metric-icon {
+        width: 48px;
+        height: 48px;
+        flex: 0 0 48px;
+        display: grid;
+        place-items: center;
+        border-radius: 14px;
+        color: #1f6f43;
+        background: #eaf7ee;
+        font-size: 20px;
+    }
+
+    .dashboard__metric-value {
+        color: #1b3d2f;
+        font-size: clamp(1.35rem, 2vw, 1.8rem);
+        font-weight: 800;
+        line-height: 1.2;
+        overflow-wrap: anywhere;
+    }
+
+    .dashboard__metric-label {
+        margin-top: 5px;
+        color: #68756d;
+        font-size: .9rem;
+    }
+
+    .dashboard__chart-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin: 0 0 22px;
+    }
+
+    .dashboard__summary-grid {
+        grid-template-columns: minmax(0, 1.2fr) minmax(300px, .8fr);
+        align-items: start;
+        margin: 0 0 22px;
+    }
+
+    .dashboard__chart h2 {
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+        }
+
+        .dashboard__bars {
+            display: grid;
+            gap: 12px;
+        }
+
+        .dashboard__bar-label {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 5px;
+            font-size: .9rem;
+        }
+
+        .dashboard__bar-track {
+            height: 12px;
+            background: #edf1ed;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .dashboard__bar {
+            height: 100%;
+            min-width: 2px;
+            background: #318447;
+            border-radius: inherit;
+        }
+
+        .dashboard__bar--warning {
+            background: #d58b21;
+        }
+
+        .dashboard__bar--blue {
+            background: #4285a4;
+        }
+
+        .dashboard__scroll {
+            overflow-x: auto;
+        }
+
+        .dashboard__line-chart {
+            display: block;
+            width: 100%;
+            min-width: 520px;
+            height: auto;
+        }
+
+        .dashboard__legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .dashboard__legend span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dashboard__legend i {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .dashboard__months {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            min-width: 520px;
+            margin-top: 8px;
+            color: #68756d;
+            font-size: .75rem;
+        }
+
+        .dashboard__empty {
+            color: #68756d;
+            margin: 8px 0;
+        }
+
+        .dashboard__incident-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .dashboard__incident {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px;
+            background: #f8faf8;
+            border: 1px solid #e6ece6;
+            border-radius: 10px;
+        }
+
+        .dashboard__incident .muted {
+            margin-top: 4px;
+            font-size: .8rem;
+        }
+
+        .dashboard__priority {
+            flex: 0 0 auto;
+        }
+
+        .dashboard__priority--critica,
+        .dashboard__priority--alta {
+            color: #9f2929;
+            background: #fdeaea;
+        }
+
+        .dashboard__section-link {
+            margin-top: 14px;
+        }
+
+        .dashboard__inventory-alerts {
+            margin: 0 0 22px;
+            border-left: 5px solid #d58b21;
+        }
+
+        .dashboard__inventory-alerts h2 {
+            font-size: 1.15rem;
+            margin-bottom: 8px;
+        }
+
+        .dashboard__inventory-list {
+            display: grid;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .dashboard__inventory-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #fff9ed;
+            border-radius: 10px;
+        }
+
+        .dashboard__inventory-item strong {
+            color: #8b4c00;
+        }
+
+        @media (max-width: 600px) {
+            .dashboard__header {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .dashboard__filters {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard__metrics,
+            .dashboard__chart-grid,
+            .dashboard__summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard__inventory-item {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .dashboard__incident {
+                flex-direction: column;
+            }
+        }
+
+        @media (min-width: 601px) and (max-width: 980px) {
+            .dashboard__metrics {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+    </style>
+
+    <header class="dashboard__header">
+        <div>
+            <h1>Panel principal</h1>
+            <p class="muted">Resumen comercial y operativo de Agrovia.</p>
+        </div>
+        <form method="get" class="card dashboard__filters" aria-label="Filtrar periodo del dashboard">
+            <div>
+                <label for="fecha_desde">Desde</label>
+                <input id="fecha_desde" name="fecha_desde" type="date" value="{{ fecha_desde }}" required>
+            </div>
+            <div>
+                <label for="fecha_hasta">Hasta</label>
+                <input id="fecha_hasta" name="fecha_hasta" type="date" value="{{ fecha_hasta }}" required>
+            </div>
+            <button class="btn" type="submit">Aplicar</button>
+        </form>
+    </header>
+
+    <section class="dashboard__metrics" aria-label="Indicadores principales">
+        {% for k, v in stats.items() %}
+        <div class="card dashboard__metric">
+            <span class="dashboard__metric-icon" aria-hidden="true">
+                <i class="fa-solid {{ {'ventas':'fa-sack-dollar', 'operaciones':'fa-arrows-rotate', 'solicitudes':'fa-clipboard-list', 'entregas':'fa-truck-fast'}[k] }}"></i>
+            </span>
+            <div>
+                <div class="dashboard__metric-value">
+                    {% if k == 'ventas' %}S/ {{ '%.2f'|format(v) }}{% else %}{{ v }}{% endif %}
+                </div>
+                <div class="dashboard__metric-label">{{ {
+                    'ventas':'Ventas del periodo',
+                    'operaciones':'Operaciones del periodo',
+                    'solicitudes':'Solicitudes pendientes',
+                    'entregas':'Entregas en curso'
+                }[k] }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </section>
+
+    <div class="dashboard__chart-grid">
+        <section class="card dashboard__chart">
+            <h2>Ventas por mes · gráfico de barras</h2>
+            <p class="muted">Monto total de operaciones no canceladas (S/).</p>
+            {% if ventas_mensuales %}
+            <div class="dashboard__bars" role="img" aria-label="Gráfico de barras de ventas por mes">
+                {% for fila in ventas_mensuales %}
+                <div>
+                    <div class="dashboard__bar-label">
+                        <span>{{ fila.etiqueta }}</span>
+                        <strong>S/ {{ '%.2f'|format(fila.total) }}</strong>
+                    </div>
+                    <div class="dashboard__bar-track">
+                        <div class="dashboard__bar" style="width: {{ fila.porcentaje }}%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="dashboard__empty">No hay datos para este rango.</p>
+            {% endif %}
+        </section>
+
+        <section class="card dashboard__chart">
+            <h2>Operaciones por mes · gráfico de barras</h2>
+            {% if operaciones_mensuales %}
+            <div class="dashboard__bars" role="img" aria-label="Gráfico de barras de operaciones por mes">
+                {% for fila in operaciones_mensuales %}
+                <div>
+                    <div class="dashboard__bar-label">
+                        <span>{{ fila.etiqueta }}</span>
+                        <strong>{{ fila.total }} operación(es)</strong>
+                    </div>
+                    <div class="dashboard__bar-track">
+                        <div class="dashboard__bar dashboard__bar--blue" style="width: {{ fila.porcentaje }}%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="dashboard__empty">No hay operaciones para este rango.</p>
+            {% endif %}
+        </section>
+
+        <section class="card dashboard__chart">
+            <h2>Operaciones por estado · gráfico circular</h2>
+            {% if operaciones_por_estado %}
+            <div class="dashboard__chart-grid">
+                <svg viewBox="0 0 200 200" role="img" aria-label="Gráfico circular de operaciones por estado">
+                    <circle cx="100" cy="100" r="72" fill="none" stroke="#edf1ed" stroke-width="32" />
+                    {% for fila in operaciones_por_estado %}
+                    <circle
+                        cx="100" cy="100" r="72" fill="none" stroke="{{ fila.color }}" stroke-width="32"
+                        stroke-dasharray="{{ '%.2f'|format(fila.tramo_circular) }} {{ '%.2f'|format(circunferencia_estado - fila.tramo_circular) }}"
+                        stroke-dashoffset="-{{ '%.2f'|format(fila.desfase_circular) }}"
+                        transform="rotate(-90 100 100)">
+                        <title>{{ fila.estado }}: {{ fila.total }} operación(es), {{ '%.1f'|format(fila.porcentaje_total) }}%</title>
+                    </circle>
+                    {% endfor %}
+                    <text x="100" y="96" text-anchor="middle" fill="#34443a" font-size="26" font-weight="700">{{ total_operaciones_estado }}</text>
+                    <text x="100" y="117" text-anchor="middle" fill="#68756d" font-size="11">operaciones</text>
+                </svg>
+                <div class="dashboard__legend" aria-label="Leyenda de operaciones por estado">
+                    {% for fila in operaciones_por_estado %}
+                    <span>
+                        <i style="background: {{ fila.color }}"></i>
+                        {{ fila.estado }}: {{ fila.total }} ({{ '%.1f'|format(fila.porcentaje_total) }}%)
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <p class="dashboard__empty">No hay operaciones para este rango.</p>
+            {% endif %}
+        </section>
+
+        <section class="card dashboard__chart">
+            <h2>Pagos pendientes de revisión</h2>
+            {% if pagos_por_estado %}
+            <div class="dashboard__bars" aria-label="Pagos pendientes agrupados por estado">
+                {% for fila in pagos_por_estado %}
+                <div>
+                    <div class="dashboard__bar-label">
+                        <span>{{ fila.estado }} · {{ fila.total }} pago(s)</span>
+                        <strong>S/ {{ '%.2f'|format(fila.monto) }}</strong>
+                    </div>
+                    <div class="dashboard__bar-track">
+                        <div class="dashboard__bar dashboard__bar--warning" style="width: {{ fila.porcentaje }}%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="dashboard__empty">No hay pagos por revisar en este rango.</p>
+            {% endif %}
+        </section>
+
+        <section class="card dashboard__chart">
+            <h2>Evolución mensual por producto</h2>
+            <p class="muted">Valor de operaciones no canceladas por producto (S/).</p>
+            {% if evolucion_productos %}
+            <div class="dashboard__scroll">
+                <svg class="dashboard__line-chart" viewBox="0 0 800 220" role="img" aria-label="Evolución mensual del valor de operaciones por producto">
+                    <line x1="20" y1="20" x2="20" y2="200" stroke="#dfe6df" />
+                    <line x1="20" y1="200" x2="780" y2="200" stroke="#dfe6df" />
+                    {% for serie in evolucion_productos %}
+                    <polyline points="{{ serie.puntos }}" fill="none" stroke="{{ serie.color }}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                    {% for punto in serie.marcadores %}
+                    <circle cx="{{ punto.x }}" cy="{{ punto.y }}" r="4" fill="{{ serie.color }}">
+                        <title>{{ serie.nombre }} · {{ punto.mes }}: S/ {{ '%.2f'|format(punto.valor) }}</title>
+                    </circle>
+                    {% endfor %}
+                    {% endfor %}
+                </svg>
+                <div class="dashboard__months">
+                    {% for etiqueta in etiquetas_meses %}
+                    <span>{{ etiqueta }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="dashboard__legend">
+                {% for serie in evolucion_productos %}
+                <span><i style="background: {{ serie.color }}"></i>{{ serie.nombre }}</span>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="dashboard__empty">No hay operaciones de productos para este rango.</p>
+            {% endif %}
+        </section>
+    </div>
+
+    <div class="dashboard__summary-grid">
+        <section class="card dashboard__chart">
+            <h2>Últimas operaciones</h2>
+            <div class="dashboard__scroll">
+                <table class="table">
+                    <thead>
+                        <tr><th>Código</th><th>Producto</th><th>Productor</th><th>Total</th><th>Estado</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for r in recent %}
+                        <tr>
+                            <td>{{ r.codigo_operacion }}</td>
+                            <td>{{ r.producto }}</td>
+                            <td>{{ r.productor }}</td>
+                            <td>S/ {{ '%.2f'|format(r.total_operacion or 0) }}</td>
+                            <td><span class="badge">{{ r.estado }}</span></td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="5">No hay operaciones recientes.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="card dashboard__chart">
+            <h2>Incidencias pendientes</h2>
+            <div class="dashboard__incident-list">
+                {% for incidencia in incidencias_pendientes %}
+                <article class="dashboard__incident">
+                    <div>
+                        <strong>{{ incidencia.codigo_incidencia }} · {{ incidencia.categoria }}</strong>
+                        <div class="muted">
+                            {% if incidencia.codigo_operacion %}Operación {{ incidencia.codigo_operacion }} · {% endif %}
+                            {{ incidencia.fecha_apertura.strftime('%d/%m/%Y %H:%M') }}
+                        </div>
+                    </div>
+                    <span class="badge dashboard__priority dashboard__priority--{{ incidencia.prioridad|lower }}">
+                        {{ incidencia.prioridad }}
+                    </span>
+                </article>
+                {% else %}
+                <p class="dashboard__empty">No hay incidencias pendientes.</p>
+                {% endfor %}
+            </div>
+            {% if 'ADMINISTRADOR' in session_roles %}
+            <a class="btn dashboard__section-link" href="{{ url_for('admin_incidencias') }}">Ver incidencias</a>
+            {% endif %}
+        </section>
+    </div>
+
+    <section class="card dashboard__inventory-alerts" aria-labelledby="inventory-alerts-title">
+        <h2 id="inventory-alerts-title">Alertas de inventario</h2>
+        <p class="muted">
+            Estimación de producción disponible después de descontar operaciones activas
+            y reservas vigentes. Se alerta al llegar al 20% o menos de la producción máxima.
+        </p>
+        <div class="dashboard__inventory-list">
+            {% for lote in alertas_inventario %}
+            <div class="dashboard__inventory-item">
+                <div>
+                    <strong>{{ lote.producto }} · {{ lote.codigo_lote }}</strong>
+                    <div>
+                        {% if lote.agotado %}
+                        Sin producción estimada disponible para comprometer.
+                        {% else %}
+                        Restan {{ '%.2f'|format(lote.restante_kg) }} kg
+                        ({{ '%.1f'|format(lote.porcentaje_restante) }}% de la producción máxima).
+                        {% endif %}
+                    </div>
+                </div>
+                <a class="btn" href="{{ url_for('lotes') }}">Revisar lotes</a>
+            </div>
+            {% else %}
+            <p class="dashboard__empty">No hay lotes disponibles próximos a agotarse.</p>
+            {% endfor %}
+        </div>
+    </section>
+</main>
+{% endblock %}

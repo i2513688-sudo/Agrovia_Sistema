@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Reportes descargables{% endblock %}
+{% block content %}
+<main class="container">
+    <h1>Reportes descargables</h1>
+    <p class="muted">Exporta información registrada en Agrovia a Excel o PDF.</p>
+
+    <form method="get" action="{{ url_for('admin_reportes') }}" class="card-form">
+        <div class="grid three-columns">
+            <div>
+                <label for="tipo">Reporte</label>
+                <select id="tipo" name="tipo">
+                    {% for codigo, reporte in reportes.items() %}
+                    <option value="{{ codigo }}" {% if tipo_seleccionado == codigo %}selected{% endif %}>
+                        {{ reporte.titulo }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="fecha_desde">Fecha desde (opcional)</label>
+                <input id="fecha_desde" name="fecha_desde" type="date" value="{{ fecha_desde }}">
+            </div>
+            <div>
+                <label for="fecha_hasta">Fecha hasta (opcional)</label>
+                <input id="fecha_hasta" name="fecha_hasta" type="date" value="{{ fecha_hasta }}">
+            </div>
+            <div>
+                <label for="estado">Estado (opcional)</label>
+                <select id="estado" name="estado">
+                    <option value="">Todos los estados</option>
+                </select>
+            </div>
+        </div>
+        <p class="muted">
+            Las fechas se aplican a operaciones y pagos por su fecha registrada; a productos por publicación de lotes;
+            a productores por sus operaciones y a entregas por fecha de entrega o asignación del transporte.
+        </p>
+        <button type="submit" class="btn">Aplicar filtros</button>
+    </form>
+
+    <section class="card" style="margin-top: 20px;">
+        <h2>Descargar: {{ reportes[tipo_seleccionado].titulo }}</h2>
+        <p>Los reportes admiten hasta 50 000 filas. Si superas el límite, delimita el periodo o el estado.</p>
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:16px;">
+            <a class="btn" href="{{ url_for('descargar_reporte', tipo=tipo_seleccionado, formato='excel', fecha_desde=fecha_desde or None, fecha_hasta=fecha_hasta or None, estado=estado_seleccionado or None) }}">
+                <i class="fa-solid fa-file-excel"></i> Descargar Excel
+            </a>
+            <a class="btn" href="{{ url_for('descargar_reporte', tipo=tipo_seleccionado, formato='pdf', fecha_desde=fecha_desde or None, fecha_hasta=fecha_hasta or None, estado=estado_seleccionado or None) }}">
+                <i class="fa-solid fa-file-pdf"></i> Descargar PDF
+            </a>
+        </div>
+    </section>
+
+    <script>
+        (() => {
+            const reportes = {{ reportes|tojson }};
+            const tipo = document.getElementById("tipo");
+            const estado = document.getElementById("estado");
+            const estadoSeleccionado = {{ estado_seleccionado|tojson }};
+
+            function actualizarEstados() {
+                const estados = reportes[tipo.value].estados;
+                estado.replaceChildren(new Option("Todos los estados", ""));
+                estados.forEach((valor) => {
+                    estado.add(new Option(valor.replaceAll("_", " "), valor));
+                });
+                if (estados.includes(estadoSeleccionado)) {
+                    estado.value = estadoSeleccionado;
+                }
+            }
+
+            tipo.addEventListener("change", actualizarEstados);
+            actualizarEstados();
+        })();
+    </script>
+</main>
+{% endblock %}

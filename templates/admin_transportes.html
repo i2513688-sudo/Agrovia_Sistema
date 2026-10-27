@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Transporte{% endblock %}
+
+{% block content %}
+<main class="container">
+    <h1>Asignación de transporte</h1>
+    <p class="muted">Asigna el vehículo y transportista para cada operación en proceso de entrega.</p>
+
+    <section class="card">
+        <h2>Cuentas de transportistas</h2>
+        <p class="muted">Vincula una cuenta con rol TRANSPORTISTA para permitirle actualizar estados y compartir GPS de sus asignaciones.</p>
+        <div class="table-container">
+            <table class="table">
+                <thead><tr><th>Empresa</th><th>Cuenta vinculada</th><th>Actualizar vínculo</th></tr></thead>
+                <tbody>
+                    {% for t in transportistas %}
+                    <tr>
+                        <td>{{ t.nombre_empresa }}</td>
+                        <td>{{ t.nombre_usuario or 'Sin cuenta vinculada' }}</td>
+                        <td>
+                            <form method="post" action="{{ url_for('vincular_transportista', id_transportista=t.id_transportista) }}" class="inline-form">
+                                <select name="id_usuario">
+                                    <option value="">Sin vínculo</option>
+                                    {% for usuario in usuarios_transportistas %}
+                                    <option value="{{ usuario.id_usuario }}" {{ 'selected' if t.id_usuario == usuario.id_usuario else '' }}>{{ usuario.nombre_usuario }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn">Guardar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}<tr><td colspan="3">No hay transportistas activos.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <div class="table-container">
+        <table class="table">
+            <tr>
+                <th>Operación</th>
+                <th>Producto</th>
+                <th>Comprador</th>
+                <th>Productor</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Transporte</th>
+                <th>Carga validada</th>
+                <th>Acción</th>
+            </tr>
+
+            {% for item in transportes %}
+            <tr>
+                <td>{{ item.codigo_operacion }}</td>
+                <td>{{ item.producto }}</td>
+                <td>{{ item.comprador }}</td>
+                <td>{{ item.productor }}</td>
+                <td>S/. {{ '%.2f'|format(item.total_operacion or 0) }}</td>
+                <td>{{ item.estado_operacion }}</td>
+                <td>
+                    {% if item.codigo_transporte %}
+                        {{ item.codigo_transporte }}<br>
+                        <small>{{ item.nombre_empresa }} / {{ item.placa }} · {{ item.tipo_vehiculo }} · {{ '%.2f'|format(item.capacidad_kg or 0) }} kg</small>
+                    {% else %}
+                        <span class="muted">Sin asignar</span>
+                    {% endif %}
+                </td>
+                <td>{{ '%.2f'|format(item.peso_transporte) if item.peso_transporte is not none else 'Sin dato' }}{% if item.peso_transporte is not none %} kg{% endif %}</td>
+                <td>
+                    {% if not item.id_transporte %}
+                    <form method="post" action="{{ url_for('asignar_transporte', id_operacion=item.id_operacion) }}" class="inline-form">
+                        <div class="stacked-fields">
+                            <select name="id_transportista" required>
+                                <option value="">Transportista</option>
+                                {% for t in transportistas %}
+                                <option value="{{ t.id_transportista }}">{{ t.nombre_empresa }}{% if not t.id_usuario %} · sin cuenta vinculada{% endif %}</option>
+                                {% endfor %}
+                            </select>
+
+                            <select name="id_vehiculo" required>
+                                <option value="">Vehículo</option>
+                                {% for v in vehiculos %}
+                                <option value="{{ v.id_vehiculo }}">{{ v.tipo }} - {{ v.placa }}</option>
+                                {% endfor %}
+                            </select>
+
+                            <input type="text" name="origen" value="Predio Agrovia" placeholder="Origen">
+                            <input type="text" name="destino" value="Dirección de entrega" placeholder="Destino">
+                            <textarea name="observaciones" rows="2" placeholder="Observaciones"></textarea>
+                            <button type="submit" class="btn">Asignar</button>
+                        </div>
+                    </form>
+                    {% else %}
+                    <span class="badge">Asignado</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="9">No hay operaciones pendientes de transporte.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</main>
+{% endblock %}

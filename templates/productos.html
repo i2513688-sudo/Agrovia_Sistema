@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}Catálogo de productos | Agrovia{% endblock %}
+
+{% block content %}
+<style>
+    .catalogo {
+        width: min(1180px, 92%);
+        margin: 36px auto 56px;
+    }
+
+    .catalogo-head {
+        margin-bottom: 22px;
+    }
+
+    .catalogo-head h1 {
+        margin: 0 0 6px;
+        color: #234832;
+        font-size: 30px;
+    }
+
+    .catalogo-head p {
+        color: #647368;
+        margin: 0;
+    }
+
+    .catalogo-filtros {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding: 2px 0 16px;
+    }
+
+    .catalogo-filtro {
+        flex: 0 0 auto;
+        padding: 8px 14px;
+        border: 1px solid #d6e1d8;
+        border-radius: 6px;
+        background: #fff;
+        color: #365441;
+        font: inherit;
+        font-size: 13px;
+        cursor: pointer;
+    }
+
+    .catalogo-filtro.activo {
+        border-color: #287a45;
+        background: #287a45;
+        color: white;
+    }
+
+    .catalogo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+        gap: 18px;
+    }
+
+    .producto-card {
+        overflow: hidden;
+        border: 1px solid #e0e7e1;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 4px 14px rgba(32, 67, 42, 0.06);
+    }
+
+    .producto-foto {
+        display: grid;
+        aspect-ratio: 4 / 3;
+        place-items: center;
+        overflow: hidden;
+        background: #edf4ed;
+        color: #52845d;
+        font-size: 40px;
+    }
+
+    .producto-foto img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .producto-info {
+        padding: 15px;
+    }
+
+    .producto-categoria {
+        margin-bottom: 6px;
+        color: #32804a;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .producto-info h2 {
+        margin: 0 0 7px;
+        color: #263b2d;
+        font-size: 18px;
+    }
+
+    .producto-info p {
+        margin: 0;
+        color: #68766b;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .catalogo-vacio {
+        grid-column: 1 / -1;
+        padding: 28px;
+        border: 1px solid #e0e7e1;
+        border-radius: 8px;
+        background: white;
+        color: #647368;
+        text-align: center;
+    }
+</style>
+
+<main class="catalogo">
+    <header class="catalogo-head">
+        <h1>Catálogo de productos</h1>
+        <p>Explora los productos agrícolas por categoría.</p>
+    </header>
+
+    <nav class="catalogo-filtros" aria-label="Filtrar productos por categoría">
+        <button type="button" class="catalogo-filtro activo" data-filter="todas" aria-pressed="true">Todos</button>
+        {% for category in categories %}
+        <button type="button" class="catalogo-filtro" data-filter="{{ category.nombre|lower }}" aria-pressed="false">{{ category.nombre }}</button>
+        {% endfor %}
+    </nav>
+
+    <section class="catalogo-grid" aria-live="polite">
+        {% for p in products %}
+        <article class="producto-card" data-category="{{ p.categoria|lower }}">
+            <div class="producto-foto">
+                <img src="{{ url_for('static', filename='img/' ~ p.imagen) }}" alt="{{ p.nombre }}" loading="lazy">
+            </div>
+            <div class="producto-info">
+                <div class="producto-categoria">{{ p.categoria }}</div>
+                <h2>{{ p.nombre }}</h2>
+                {% if p.descripcion and p.descripcion != 'Producto agrícola del piloto' %}
+                <p>{{ p.descripcion }}</p>
+                {% endif %}
+            </div>
+        </article>
+        {% else %}
+        <p class="catalogo-vacio">No hay productos disponibles por el momento.</p>
+        {% endfor %}
+    </section>
+</main>
+
+<script>
+    document.querySelectorAll('.catalogo-filtro').forEach(function (button) {
+        button.addEventListener('click', function () {
+            const filter = button.dataset.filter;
+            document.querySelectorAll('.catalogo-filtro').forEach(function (item) {
+                const active = item === button;
+                item.classList.toggle('activo', active);
+                item.setAttribute('aria-pressed', active ? 'true' : 'false');
+            });
+
+            document.querySelectorAll('.producto-card').forEach(function (card) {
+                card.hidden = filter !== 'todas' && card.dataset.category !== filter;
+            });
+        });
+    });
+</script>
+{% endblock %}

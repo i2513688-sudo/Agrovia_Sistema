@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Precios de mercado{% endblock %}
+{% block content %}
+<main class="container">
+    <h1>Precios de mercado</h1>
+    <section class="card">
+        <h2>Registrar precio</h2>
+        <form method="post" class="form">
+            <label for="id_producto">Producto</label>
+            <select id="id_producto" name="id_producto" required>
+                <option value="">Selecciona un producto</option>
+                {% for producto in productos %}
+                <option value="{{ producto.id_producto }}">{{ producto.nombre }}</option>
+                {% endfor %}
+            </select>
+            <label for="id_variedad">Variedad (opcional)</label>
+            <select id="id_variedad" name="id_variedad">
+                <option value="">Todas las variedades</option>
+                {% for variedad in variedades %}
+                <option value="{{ variedad.id_variedad }}">{{ variedad.nombre }}</option>
+                {% endfor %}
+            </select>
+            <label for="precio">Precio</label>
+            <input id="precio" name="precio" type="number" min="0.0001" step="0.0001" required>
+            <label for="unidad">Unidad</label>
+            <select id="unidad" name="unidad" required>
+                <option value="KG">Kilogramo</option>
+                <option value="TONELADA">Tonelada</option>
+                <option value="SACO">Saco</option>
+                <option value="UNIDAD">Unidad</option>
+            </select>
+            <label for="fecha_precio">Fecha del precio</label>
+            <input id="fecha_precio" name="fecha_precio" type="date" required>
+            <label for="mercado">Mercado</label>
+            <input id="mercado" name="mercado" maxlength="120">
+            <label for="zona">Zona</label>
+            <input id="zona" name="zona" maxlength="120">
+            <label for="fuente">Fuente</label>
+            <input id="fuente" name="fuente" maxlength="180">
+            <button type="submit" class="btn">Registrar precio</button>
+        </form>
+    </section>
+
+    <section class="card">
+        <h2>Registros</h2>
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Producto</th><th>Variedad</th><th>Precio</th>
+                        <th>Fecha</th><th>Mercado / zona</th><th>Fuente</th>
+                        <th>Estado</th><th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in precios %}
+                    <tr>
+                        <td>{{ item.producto }}</td>
+                        <td>{{ item.variedad or 'General' }}</td>
+                        <td>S/ {{ '%.4f'|format(item.precio) }} / {{ item.unidad }}</td>
+                        <td>{{ item.fecha_precio.strftime('%d/%m/%Y') }}</td>
+                        <td>{{ item.mercado or '-' }}{% if item.zona %} · {{ item.zona }}{% endif %}</td>
+                        <td>{{ item.fuente or '-' }}</td>
+                        <td><span class="badge">{{ item.estado }}</span></td>
+                        <td>
+                            <form method="post">
+                                <input type="hidden" name="action" value="cambiar_estado">
+                                <input type="hidden" name="id_precio" value="{{ item.id_precio }}">
+                                <button type="submit" class="btn">
+                                    {{ 'Desactivar' if item.estado == 'ACTIVO' else 'Activar' }}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="8">No hay precios registrados.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+{% endblock %}

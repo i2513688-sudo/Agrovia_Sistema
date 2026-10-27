@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Mis solicitudes de lote{% endblock %}
+{% block content %}
+<main class="container">
+    <h1>Mis solicitudes de lote</h1>
+    <p class="muted">Consulta el estado y el historial de revisión de tus solicitudes.</p>
+    <section class="card">
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Solicitud</th>
+                        <th>Producto / predio</th>
+                        <th>Estado actual</th>
+                        <th>Fecha</th>
+                        <th>Seguimiento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in solicitudes %}
+                    <tr>
+                        <td>{{ item.codigo_solicitud }}</td>
+                        <td>{{ item.producto }} · {{ item.nombre_predio }}</td>
+                        <td><span class="badge">{{ item.estado }}</span></td>
+                        <td>{{ item.fecha_solicitud }}</td>
+                        <td>
+                            <details>
+                                <summary>Ver historial ({{ item.historial|length }})</summary>
+                                <ol>
+                                    {% for evento in item.historial %}
+                                    <li>
+                                        <time>{{ evento.fecha.strftime('%d/%m/%Y %H:%M') }}</time>
+                                        {{ evento.estado_anterior or 'Inicio' }} → {{ evento.estado_nuevo }}
+                                        {% if evento.observacion %}<br>{{ evento.observacion }}{% endif %}
+                                    </li>
+                                    {% else %}
+                                    <li>Sin eventos de seguimiento registrados.</li>
+                                    {% endfor %}
+                                </ol>
+                            </details>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5">Todavía no has enviado solicitudes de lote.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+{% endblock %}

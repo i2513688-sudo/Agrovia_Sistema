@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Calificar operación{% endblock %}
+
+{% block content %}
+<main class="container">
+    <h1>Calificar operación</h1>
+
+    {% if ya_califico %}
+    <div class="alert alert-warning">Ya registraste tu calificación para esta operación.</div>
+    {% else %}
+    <form method="post" class="card-form">
+        <div>
+            <label>Operación</label>
+            <input type="text" value="{{ operacion.codigo_operacion }}" disabled>
+        </div>
+
+        <div>
+            <label>Participantes</label>
+            <input type="text" value="Productor: {{ operacion.productor }} | Comprador: {{ operacion.comprador }}" disabled>
+        </div>
+
+        <div>
+            <label>Puntuación</label>
+            <select name="puntuacion" required>
+                <option value="5">5 - Excelente</option>
+                <option value="4">4 - Muy buena</option>
+                <option value="3">3 - Regular</option>
+                <option value="2">2 - Mala</option>
+                <option value="1">1 - Muy mala</option>
+            </select>
+        </div>
+
+        <div>
+            <label>Comentario</label>
+            <textarea name="comentario" rows="4" placeholder="Comenta tu experiencia..."></textarea>
+        </div>
+
+        <button type="submit" class="btn">Guardar calificación</button>
+    </form>
+    {% endif %}
+</main>
+{% endblock %}

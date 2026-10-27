@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<main class="container">
+
+    <div class="form">
+
+        <h1>Crear cuenta</h1>
+
+        <p class="muted">
+            Regístrate como productor o comprador.
+        </p>
+
+        <form method="POST">
+
+            <label>Nombres</label>
+            <input
+                type="text"
+                name="nombres"
+                required
+            >
+
+            <label>Apellido paterno</label>
+            <input
+                type="text"
+                name="apellido_paterno"
+                required
+            >
+
+            <label>Apellido materno</label>
+            <input
+                type="text"
+                name="apellido_materno"
+            >
+
+            <label>Número de documento</label>
+            <input
+                type="text"
+                name="numero_documento"
+                maxlength="20"
+                required
+            >
+
+            <label>Teléfono</label>
+            <input
+                type="text"
+                name="telefono"
+                maxlength="20"
+                required
+            >
+
+            <label>Correo</label>
+            <input
+                type="email"
+                name="correo"
+                required
+            >
+
+            <label>Contraseña</label>
+            <input
+                type="password"
+                name="password"
+                required
+            >
+
+            <label>Tipo de usuario</label>
+
+            <select name="tipo_persona" required>
+
+                <option value="">
+                    Seleccionar
+                </option>
+
+                <option value="PRODUCTOR">
+                    Productor agrícola
+                </option>
+
+                <option value="COMPRADOR">
+                    Comprador
+                </option>
+
+            </select>
+
+            <label>Código de referido (opcional)</label>
+            <input type="text" name="codigo_referido" maxlength="40" placeholder="AGROVIA-USR-00001">
+
+            <br><br>
+
+            <button
+                class="btn"
+                type="submit"
+            >
+                Crear cuenta
+            </button>
+
+        </form>
+
+    </div>
+
+</main>
+
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Notificaciones{% endblock %}
+
+{% block content %}
+<main class="container">
+    <h1>Mis notificaciones</h1>
+    <p class="muted">Historial de avisos y cambios relevantes del sistema.</p>
+
+    <div class="table-container">
+        <table class="table">
+            <tr>
+                <th>Tipo</th>
+                <th>Título</th>
+                <th>Mensaje</th>
+                <th>Estado</th>
+                <th>Relacionado</th>
+                <th>Fecha</th>
+            </tr>
+
+            {% for n in notificaciones %}
+            <tr>
+                <td>{{ n.tipo }}</td>
+                <td>{{ n.titulo }}</td>
+                <td>{{ n.mensaje }}</td>
+                <td>{{ 'Nueva' if not n.leida else 'Leída' }}</td>
+                <td>
+                    {% if n.entidad_tipo == 'OPERACION' %}
+                    {% if 'REPORTES_VER' in session_permissions %}
+                    <a href="{{ url_for('operaciones') }}">Ver operaciones</a>
+                    {% elif 'PAGOS_VER' in session_permissions %}
+                    <a href="{{ url_for('admin_pagos') }}">Ver pagos</a>
+                    {% else %}
+                    <a href="{{ url_for('mis_operaciones') }}">Ver operación</a>
+                    {% endif %}
+                    {% elif n.entidad_tipo == 'INCIDENCIA' %}
+                    <a href="{{ url_for('mis_operaciones') }}">Ver incidencia</a>
+                    {% elif n.entidad_tipo == 'SOLICITUD_LOTE' and 'PRODUCTOR' in session_roles %}
+                    <a href="{{ url_for('mis_solicitudes_lote') }}">Ver solicitud</a>
+                    {% elif n.entidad_tipo == 'SOLICITUD_LOTE' and 'SOLICITUDES_REVISAR' in session_permissions %}
+                    <a href="{{ url_for('admin_solicitudes_lote') }}">Revisar solicitudes</a>
+                    {% else %}
+                    —
+                    {% endif %}
+                </td>
+                <td>{{ n.fecha }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6">No tienes notificaciones.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</main>
+{% endblock %}

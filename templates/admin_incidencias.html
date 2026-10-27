@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Incidencias{% endblock %}
+
+{% block content %}
+<main class="container">
+    <h1>Incidencias de operación</h1>
+    <p class="muted">Registra y revisa incidencias operativas asociadas a cada operación.</p>
+
+    <div class="table-container">
+        <table class="table">
+            <tr>
+                <th>Operación</th>
+                <th>Producto</th>
+                <th>Comprador</th>
+                <th>Productor</th>
+                <th>Categoría</th>
+                <th>Prioridad</th>
+                <th>Estado</th>
+                <th>Acción</th>
+            </tr>
+
+            {% for item in incidencias %}
+            <tr>
+                <td>{{ item.codigo_operacion }}</td>
+                <td>{{ item.producto }}</td>
+                <td>{{ item.comprador }}</td>
+                <td>{{ item.productor }}</td>
+                <td>{{ item.categoria or 'OPERACIONAL' }}</td>
+                <td>{{ item.prioridad or 'MEDIA' }}</td>
+                <td>{{ item.estado or 'ABIERTO' }}</td>
+                <td>
+                    {% if not item.id_incidencia %}
+                    <form method="post" action="{{ url_for('reportar_incidencia', id_operacion=item.id_operacion) }}" class="inline-form">
+                        <div class="stacked-fields">
+                            <input type="text" name="categoria" value="OPERACIONAL" placeholder="Categoría">
+                            <select name="prioridad">
+                                <option value="BAJA">Baja</option>
+                                <option value="MEDIA" selected>Media</option>
+                                <option value="ALTA">Alta</option>
+                                <option value="CRITICA">Crítica</option>
+                            </select>
+                            <textarea name="descripcion" rows="2" placeholder="Descripción"></textarea>
+                            <button type="submit" class="btn">Reportar</button>
+                        </div>
+                    </form>
+                    {% else %}
+                    {% if item.estado == 'CERRADO' %}
+                    <span class="badge">Cerrada</span>
+                    {% else %}
+                    <form method="post" action="{{ url_for('actualizar_estado_incidencia', id_incidencia=item.id_incidencia) }}" class="inline-form">
+                        <div class="stacked-fields">
+                            <select name="estado" required>
+                                <option value="">Actualizar estado</option>
+                                <option value="EN_ATENCION">En atención</option>
+                                <option value="RESUELTO">Resuelto</option>
+                                <option value="CERRADO">Cerrado</option>
+                            </select>
+                            <textarea name="solucion" rows="2" placeholder="Solución o seguimiento"></textarea>
+                            <button type="submit" class="btn">Guardar estado</button>
+                        </div>
+                    </form>
+                    {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8">No hay incidencias registradas.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</main>
+{% endblock %}

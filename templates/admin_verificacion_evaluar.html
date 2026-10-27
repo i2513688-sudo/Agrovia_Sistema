@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Evaluar verificación{% endblock %}
+
+{% block content %}
+<main class="container">
+    <h1>Evaluar verificación</h1>
+    <p class="muted">Registra los resultados de campo para {{ verificacion.codigo_verificacion }}.</p>
+
+    <div class="form">
+        <h2>Datos generales</h2>
+        <p><strong>Solicitud:</strong> {{ verificacion.codigo_solicitud }}</p>
+        <p><strong>Productor:</strong> {{ verificacion.productor }}</p>
+        <p><strong>Producto:</strong> {{ verificacion.producto }}</p>
+        <p><strong>Predio:</strong> {{ verificacion.nombre_predio }}</p>
+        <p><strong>Área cultivada:</strong> {{ verificacion.area_cultivada }} ha</p>
+
+        <form method="post">
+            <label for="resultado">Resultado</label>
+            <select name="resultado" id="resultado" required>
+                <option value="APROBADO">APROBADO</option>
+                <option value="OBSERVADO" selected>OBSERVADO</option>
+                <option value="REQUIERE_REEVALUACION">REQUIERE_REEVALUACION</option>
+                <option value="RECHAZADO">RECHAZADO</option>
+            </select>
+
+            <label for="estado_cultivo">Estado del cultivo</label>
+            <input type="text" name="estado_cultivo" id="estado_cultivo" value="BUENO">
+
+            <label for="etapa_productiva">Etapa productiva</label>
+            <input type="text" name="etapa_productiva" id="etapa_productiva" value="CULTIVO_ACTIVO">
+
+            <label for="area_observada">Área observada (ha)</label>
+            <input type="number" step="0.01" name="area_observada" id="area_observada" value="{{ verificacion.area_observada or '' }}">
+
+            <label for="produccion_min_estimada">Producción mínima estimada (kg)</label>
+            <input type="number" step="0.01" name="produccion_min_estimada" id="produccion_min_estimada" value="{{ verificacion.produccion_min_estimada or '' }}">
+
+            <label for="produccion_max_estimada">Producción máxima estimada (kg)</label>
+            <input type="number" step="0.01" name="produccion_max_estimada" id="produccion_max_estimada" value="{{ verificacion.produccion_max_estimada or '' }}">
+
+            <label for="observaciones">Observaciones</label>
+            <textarea name="observaciones" id="observaciones" rows="5" placeholder="Escribe las observaciones de la visita de campo..."></textarea>
+
+            <button type="submit" class="btn">Guardar evaluación</button>
+            <a class="btn btn-secondary" href="{{ url_for('admin_verificaciones') }}">Volver</a>
+        </form>
+    </div>
+</main>
+{% endblock %}

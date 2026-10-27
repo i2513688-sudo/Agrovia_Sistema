@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Publicaciones{% endblock %}
+{% block content %}
+<main class="container">
+    <h1>Publicaciones</h1>
+    <section class="card">
+        <h2>Nueva publicación</h2>
+        <form method="post" class="form">
+            <label>Tipo
+                <select name="tipo" required>
+                    {% for tipo in tipos_publicacion %}<option value="{{ tipo }}">{{ tipo|replace('_', ' ')|title }}</option>{% endfor %}
+                </select>
+            </label>
+            <label>Título<input name="titulo" maxlength="180" required></label>
+            <label>Contenido<textarea name="contenido" rows="6" required></textarea></label>
+            <label>Estado
+                <select name="estado">
+                    <option value="BORRADOR">Borrador</option>
+                    <option value="PUBLICADA">Publicar ahora</option>
+                </select>
+            </label>
+            <button type="submit" class="btn">Guardar publicación</button>
+        </form>
+    </section>
+    <section class="card">
+        <h2>Publicaciones registradas</h2>
+        {% for item in publicaciones %}
+        <details>
+            <summary>{{ item.titulo }} · {{ item.estado }}</summary>
+            <form method="post" class="form">
+                <input type="hidden" name="id_publicacion" value="{{ item.id_publicacion }}">
+                <label>Tipo
+                    <select name="tipo">
+                        {% for tipo in tipos_publicacion %}
+                        <option value="{{ tipo }}" {{ 'selected' if item.tipo == tipo else '' }}>{{ tipo|replace('_', ' ')|title }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>Título<input name="titulo" maxlength="180" value="{{ item.titulo }}" required></label>
+                <label>Contenido<textarea name="contenido" rows="6" required>{{ item.contenido }}</textarea></label>
+                <label>Estado
+                    <select name="estado">
+                        {% for estado in estados_publicacion %}
+                        <option value="{{ estado }}" {{ 'selected' if item.estado == estado else '' }}>{{ estado|title }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <p>Autor: {{ item.autor }} · Código: {{ item.codigo_publicacion }}</p>
+                <button type="submit" class="btn">Guardar cambios</button>
+            </form>
+        </details>
+        {% else %}<p>No hay publicaciones registradas.</p>{% endfor %}
+    </section>
+</main>
+{% endblock %}
