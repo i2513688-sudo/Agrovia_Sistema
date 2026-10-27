@@ -298,6 +298,14 @@
         border-color: #bdd9c4;
     }
 
+    .charla-agrovia-imagen {
+        display: block;
+        width: 100%;
+        max-height: 320px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
     @media (max-width: 850px) {
         .vida-layout {
             grid-template-columns: 1fr;
@@ -552,7 +560,21 @@
     <section class="eventos-card" style="margin-top: 24px;">
         <h2>Publicaciones de Agrovia</h2>
         {% for publicacion in publicaciones %}
+        {% set texto_publicacion = (publicacion.titulo ~ ' ' ~ publicacion.contenido)|lower %}
         <article style="padding: 14px 0; border-bottom: 1px solid #ddd;">
+            {% if 'charla' in texto_publicacion and 'agrovia' in texto_publicacion %}
+            <a href="https://www.facebook.com/share/p/1FVxmshvxB/" target="_blank" rel="noopener noreferrer">
+                <img class="charla-agrovia-imagen"
+                     src="{{ url_for('static', filename='img/charla_agrovia.jpg') }}"
+                     alt="Charla informativa de Agrovia">
+            </a>
+            <a class="btn-calendario"
+               href="https://www.facebook.com/share/p/1FVxmshvxB/"
+               target="_blank"
+               rel="noopener noreferrer">
+                Ver charla de Agrovia en Facebook
+            </a>
+            {% endif %}
             <small>{{ publicacion.tipo|replace('_', ' ')|title }}{% if publicacion.fecha_publicacion %} · {{ publicacion.fecha_publicacion.strftime('%d/%m/%Y') }}{% endif %}</small>
             <h3>{{ publicacion.titulo }}</h3>
             <p style="white-space: pre-line;">{{ publicacion.contenido }}</p>

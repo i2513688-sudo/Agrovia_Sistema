@@ -40,6 +40,29 @@ class VidaAgroviaTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("Contenido publicado", response.get_data(as_text=True))
 
+    @patch("app.query")
+    def test_agrovia_talk_publication_includes_facebook_link_and_image(self, query):
+        query.side_effect = lambda sql, *args, **kwargs: (
+            [{
+                "id_publicacion": 1,
+                "tipo": "CAPACITACION",
+                "titulo": "Charla informática sobre Agrovia",
+                "contenido": "Información para productores.",
+                "fecha_publicacion": None,
+            }]
+            if "FROM publicaciones" in sql
+            else []
+        )
+        flask_app.config["TESTING"] = True
+        response = flask_app.test_client().get("/vida-agrovia")
+
+        self.assertEqual(response.status_code, 200)
+        content = response.get_data(as_text=True)
+        self.assertIn('src="/static/img/charla_agrovia.jpg"', content)
+        self.assertIn('alt="Charla informativa de Agrovia"', content)
+        self.assertIn('href="https://www.facebook.com/share/p/1FVxmshvxB/"', content)
+        self.assertIn("Ver charla de Agrovia en Facebook", content)
+
 
 if __name__ == "__main__":
     unittest.main()
