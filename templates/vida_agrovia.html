@@ -380,16 +380,6 @@
                         style="background-image: url('{{ imagen_capacitacion }}');"
                     ></div>
 
-                    {% if capacitacion.titulo == 'Optimización de Riego con Sensores IoT' %}
-                    <a class="btn-calendario"
-                       href="https://www.facebook.com/share/p/1FVxmshvxB/"
-                       target="_blank"
-                       rel="noopener noreferrer"
-                       style="margin: 10px 14px 0; width: calc(100% - 28px);">
-                        Ver charla aplicada en Facebook
-                    </a>
-                    {% endif %}
-
                     <div class="capacitacion-body">
 
                         <div class="capacitacion-categoria">
@@ -439,6 +429,8 @@
 
                 </article>
 
+                {% else %}
+                <p class="evento-vacio">Aún no hay contenidos disponibles.</p>
                 {% endfor %}
 
             </div>

@@ -9540,37 +9540,14 @@ def cuenta():
 
 @app.route('/vida-agrovia')
 def vida_agrovia():
-    capacitaciones = [
-        {
-            'categoria': 'TECNOLOGÍA',
-            'titulo': 'Optimización de Riego con Sensores IoT',
-            'descripcion': 'Aprende a instalar e interpretar datos de sensores de humedad para reducir el consumo de agua.',
-            'tipo': '45 min',
-            'imagen': 'cosecha choclo.png'
-        },
-        {
-            'categoria': 'BUENAS PRÁCTICAS',
-            'titulo': 'Manejo Integrado de Plagas en Cítricos',
-            'descripcion': 'Guía completa para la identificación temprana y el control biológico de las principales plagas.',
-            'tipo': 'Lectura (15m)',
-            'imagen': 'cosecha papa.png'
-        },
-        {
-            'categoria': 'CAPACITACIONES',
-            'titulo': 'Buenas prácticas agrícolas',
-            'descripcion': 'Conoce recomendaciones para mejorar el manejo y rendimiento de tus cultivos.',
-            'tipo': '30 min',
-            'imagen': 'cosecha zanahoria.png'
-        }
-    ]
-    capacitaciones.extend(query(
+    capacitaciones = query(
         """
         SELECT id_contenido, titulo, descripcion, categoria, tipo, imagen, video
         FROM contenidos_educativos
         WHERE estado = 'ACTIVO'
         ORDER BY fecha_creacion DESC
         """
-    ))
+    )
 
     eventos = query(
         """

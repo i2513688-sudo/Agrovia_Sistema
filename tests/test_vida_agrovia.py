@@ -1,0 +1,45 @@
+import unittest
+from unittest.mock import patch
+
+from app import app as flask_app
+
+
+class VidaAgroviaTests(unittest.TestCase):
+    @patch("app.query", return_value=[])
+    def test_default_sample_content_is_not_displayed(self, query):
+        flask_app.config["TESTING"] = True
+        response = flask_app.test_client().get("/vida-agrovia")
+
+        self.assertEqual(response.status_code, 200)
+        content = response.get_data(as_text=True)
+        self.assertNotIn("Manejo Integrado de Plagas en Cítricos", content)
+        self.assertNotIn("Buenas prácticas agrícolas", content)
+        self.assertNotIn("Optimización de Riego con Sensores IoT", content)
+        self.assertNotIn('class="btn-contenido"', content)
+        self.assertNotIn("Ver contenido", content)
+        self.assertIn("Aún no hay contenidos disponibles.", content)
+
+    @patch("app.query")
+    def test_published_content_still_appears(self, query):
+        query.side_effect = lambda sql, *args, **kwargs: (
+            [{
+                "id_contenido": 1,
+                "titulo": "Contenido publicado",
+                "descripcion": "Descripción del contenido",
+                "categoria": "TECNOLOGÍA",
+                "tipo": "Lectura",
+                "imagen": "cosecha choclo.png",
+                "video": None,
+            }]
+            if "FROM contenidos_educativos" in sql
+            else []
+        )
+        flask_app.config["TESTING"] = True
+        response = flask_app.test_client().get("/vida-agrovia")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Contenido publicado", response.get_data(as_text=True))
+
+
+if __name__ == "__main__":
+    unittest.main()
